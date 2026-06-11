@@ -1,0 +1,5 @@
+services:
+  deploy_steps.service:
+    class: Drupal\deploy_steps\DeployStepsService
+    arguments:
+      - '@config.factory'

@@ -1,0 +1,9 @@
+deploy_steps.settings_form:
+  path: '/admin/config/development/deploy_steps'
+  defaults:
+    _form: '\Drupal\deploy_steps\Form\DeployStepsForm'
+    _title: 'Deploy Steps Settings'
+  requirements:
+    _permission: 'administer site configuration'
+  options:
+    _admin_route: TRUE

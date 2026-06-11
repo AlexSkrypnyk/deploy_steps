@@ -1,0 +1,28 @@
+{
+    "name": "drupal/deploy_steps",
+    "description": "Provides deploy_steps functionality.",
+    "type": "drupal-module",
+    "license": "GPL-2.0-or-later",
+    "authors": [
+        {
+            "name": "Your Name",
+            "email": "deploy_steps@yourusername.com",
+            "homepage": "https://www.drupal.org/u/yourusername",
+            "role": "Maintainer"
+        }
+    ],
+    "homepage": "https://drupal.org/project/deploy_steps",
+    "support": {
+        "issues": "https://drupal.org/project/issues/deploy_steps",
+        "source": "https://git.drupalcode.org/project/deploy_steps"
+    },
+    "require": {
+        "php": ">=8.2"
+    },
+    "require-dev": {
+        "drupal/autologout": "^2"
+    },
+    "suggest": {
+        "drupal/config_ignore": "Ignore certain configuration during import."
+    }
+}

@@ -1,0 +1,7 @@
+deploy_steps.settings:
+  type: config_object
+  label: 'Deploy Steps settings'
+  mapping:
+    text:
+      type: string
+      label: 'Text for <noscript> Tag'

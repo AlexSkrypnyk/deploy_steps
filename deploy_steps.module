@@ -1,0 +1,44 @@
+<?php
+
+/**
+ * @file
+ * Code for deploy_steps module.
+ *
+ * This module adds a content, set in the configuration form, to the bottom of
+ * the page and shows it if JavaScript is disabled.
+ */
+
+declare(strict_types=1);
+
+/**
+ * Implements hook_page_attachments().
+ */
+function deploy_steps_page_attachments(array &$attachments) {
+  $attachments['#attached']['library'][] = 'deploy_steps/global';
+}
+
+/**
+ * Implements hook_page_bottom().
+ */
+function deploy_steps_page_bottom(array &$page_bottom) {
+  /** @var \Drupal\deploy_steps\DeployStepsService $deploy_steps_service */
+  $deploy_steps_service = \Drupal::getContainer()->get('deploy_steps.service');
+
+  $text = $deploy_steps_service->getText();
+
+  if (!empty($text)) {
+    $page_bottom['deploy_steps'] = [
+      '#type' => 'html_tag',
+      '#tag' => 'noscript',
+      '#value' => $text,
+    ];
+  }
+
+  $page_bottom['deploy_steps_time'] = [
+    '#type' => 'html_tag',
+    '#tag' => 'div',
+    '#attributes' => [
+      'data-deploy_steps-time' => TRUE,
+    ],
+  ];
+}
