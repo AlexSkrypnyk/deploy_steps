@@ -60,7 +60,7 @@ final class ImportMigrations extends DeployStepBase implements ContainerFactoryP
   /**
    * {@inheritdoc}
    */
-  public function gate(): ?string {
+  public function skip(): ?string {
     // `migrate:import` is provided by the migrate_tools module.
     return $this->moduleHandler->moduleExists('migrate_tools') ? NULL : 'migrate_tools module is not enabled';
   }

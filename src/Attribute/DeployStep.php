@@ -14,7 +14,7 @@ use Drupal\deploy_steps\DeployStepInterface;
  * `drush deploy:hook` - the repeatable counterpart to run-once
  * hook_deploy_NAME(). Place the plugin class in any enabled module's
  * `Plugin/DeployStep/` namespace; the deploy_steps runner discovers it, orders
- * it by weight within its phase, asks its gate whether to run, and runs it.
+ * it by weight within its phase, checks its skip reason, and runs it.
  *
  * @code
  * #[DeployStep(

@@ -59,7 +59,7 @@ final class ReindexSearchApi extends DeployStepBase implements ContainerFactoryP
   /**
    * {@inheritdoc}
    */
-  public function gate(): ?string {
+  public function skip(): ?string {
     // `search-api:index` is provided by the search_api module.
     return $this->moduleHandler->moduleExists('search_api') ? NULL : 'search_api module is not enabled';
   }

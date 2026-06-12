@@ -13,15 +13,15 @@ use Drush\Drush;
  * Base class for deploy step plugins.
  *
  * Provides weight/phase/label accessors from the plugin definition, a default
- * "always run" gate, and environment helpers most gates need. Subclasses
- * implement ::run() and, when conditional, override ::gate().
+ * ::skip() that always runs, and environment helpers most skip conditions
+ * need. Subclasses implement ::run() and, when conditional, override ::skip().
  */
 abstract class DeployStepBase extends PluginBase implements DeployStepInterface {
 
   /**
    * {@inheritdoc}
    */
-  public function gate(): ?string {
+  public function skip(): ?string {
     // Run by default. Override to skip under specific conditions.
     return NULL;
   }

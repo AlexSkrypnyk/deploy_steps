@@ -17,9 +17,9 @@ use Drupal\Tests\UnitTestCase;
 class DeployStepBaseTest extends UnitTestCase {
 
   /**
-   * Tests weight, phase, label, and the default open gate.
+   * Tests weight, phase, label, and the default skip reason.
    */
-  public function testWeightPhaseLabelAndDefaultGate(): void {
+  public function testWeightPhaseLabelAndDefaultSkip(): void {
     $step = $this->createStep([
       'weight' => 5,
       'label' => 'My step',
@@ -29,7 +29,7 @@ class DeployStepBaseTest extends UnitTestCase {
     $this->assertSame(5, $step->getWeight());
     $this->assertSame(DeployStepInterface::PHASE_PRE, $step->getPhase());
     $this->assertSame('My step', $step->label());
-    $this->assertNull($step->gate(), 'The default gate is open.');
+    $this->assertNull($step->skip(), 'The step runs by default.');
   }
 
   /**

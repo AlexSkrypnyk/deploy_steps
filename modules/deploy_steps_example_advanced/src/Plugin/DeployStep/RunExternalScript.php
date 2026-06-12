@@ -15,7 +15,7 @@ use Symfony\Component\Process\Process;
  * Runs an external program on every deploy.
  *
  * Demonstrates calling something outside Drupal and Drush. The script path is
- * read from $settings['deploy_steps_example_script']; the step gates itself out
+ * read from $settings['deploy_steps_example_script']; the step skips itself
  * when that is unset or the file is missing, so enabling the module never
  * breaks a deploy on its own. Symfony's Process is used in preference to
  * exec()/shell_exec(): it streams output, runs without a timeout for
@@ -33,7 +33,7 @@ final class RunExternalScript extends DeployStepBase {
   /**
    * {@inheritdoc}
    */
-  public function gate(): ?string {
+  public function skip(): ?string {
     $script = $this->scriptPath();
 
     if ($script === '') {
