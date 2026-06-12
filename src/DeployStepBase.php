@@ -22,6 +22,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * step needing another service overrides ::create() and calls parent::create().
  * Specialised capabilities are opt-in traits a step composes with `use`:
  * \Drupal\deploy_steps\EnvironmentTrait for environment-conditional skips,
+ * \Drupal\deploy_steps\EnvTrait for reading environment variables,
  * \Drupal\deploy_steps\DrushTrait for redispatching a Drush sub-command, and
  * \Drupal\deploy_steps\ProcessTrait for running an external command. Subclasses
  * implement ::run() and, when conditional, override ::skip().

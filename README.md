@@ -115,6 +115,10 @@ A single module can declare as many steps as it needs - each is its own plugin w
 
 `environment()` reads `$settings['environment']` (set in `settings.php`); it lives in `EnvironmentTrait`, which a step composes with `use`. Compare it against your environment marker - e.g. `$this->environment() === 'prod'` - to gate a step. The module does not hardcode any project-specific environment names.
 
+### Reading environment variables
+
+`EnvTrait` provides an `envGet($name, $default)` helper for steps configured by environment variables the deploy pipeline exports; a step composes it with `use`. `ImportMigrationsDeployStep` reads `DRUPAL_MIGRATION_*` variables this way to skip itself and shape the import. This is distinct from `environment()` above - that reads the Drupal environment marker from `settings.php`, while `envGet()` reads a raw shell environment variable.
+
 ### Testing a deploy step
 
 A step that calls `drush()` or `processRun()` can be unit tested without a real Drush or process: mock that one method on the step (declare the step non-`final` so it can be mocked) and assert the command it would run.
@@ -134,7 +138,7 @@ The `deploy_steps_example` submodule ships a unit test for each of its steps - `
 
 The optional `deploy_steps_example` submodule demonstrates the patterns - enable it to study, then model your own steps and their unit tests on its three steps. Each step skips itself when its prerequisite is missing, so enabling the module never breaks a deploy on its own:
 
-- `ImportMigrationsDeployStep` redispatches `migrate:import --all --update` (skipped unless the `migrate_tools` module is enabled).
+- `ImportMigrationsDeployStep` redispatches `migrate:import`, shaped by `DRUPAL_MIGRATION_*` environment variables the deploy pipeline exports (skipped via `DRUPAL_MIGRATION_SKIP=1`, or when the `migrate_tools` module is absent).
 - `ReindexSearchApiDeployStep` redispatches `search-api:index` (skipped unless the `search_api` module is enabled).
 - `RunExternalCommandDeployStep` runs an external program via `ProcessTrait`, and gates itself on the environment via `EnvironmentTrait` (skipped on the `local` environment, or when `$settings['deploy_steps_example_command']` is unset or missing).
 

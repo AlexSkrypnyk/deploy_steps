@@ -9,15 +9,18 @@ use Drupal\deploy_steps\Attribute\DeployStep;
 use Drupal\deploy_steps\DeployStepBase;
 use Drupal\deploy_steps\DeployStepInterface;
 use Drupal\deploy_steps\DrushTrait;
+use Drupal\deploy_steps\EnvTrait;
 
 /**
  * Imports migrations on every deploy by redispatching `migrate:import`.
  *
- * Demonstrates the bulk-work pattern: `migrate:import` builds a Drupal batch,
- * and Drush re-spawns fresh `batch:process` subprocesses as memory fills, so a
- * large import runs within memory bounds and resumes the same way a sandboxed
- * hook_update_N() is re-entered. The step only wires the command; Drush owns
- * the batching and restart behaviour.
+ * Demonstrates two things. The bulk-work pattern: `migrate:import` builds a
+ * Drupal batch that Drush processes across restarting `batch:process`
+ * subprocesses, so a large import stays within memory bounds. And reading
+ * deploy-time configuration from environment variables, the way a deploy
+ * pipeline passes settings into PHP - `DRUPAL_MIGRATION_SKIP=1` skips the step,
+ * while `DRUPAL_MIGRATION_IMPORT_LIMIT` and `DRUPAL_MIGRATION_UPDATE` shape the
+ * `migrate:import` options.
  */
 #[DeployStep(
   id: 'import_migrations',
@@ -28,11 +31,16 @@ use Drupal\deploy_steps\DrushTrait;
 class ImportMigrationsDeployStep extends DeployStepBase {
 
   use DrushTrait;
+  use EnvTrait;
 
   /**
    * {@inheritdoc}
    */
   public function skip(): ?string {
+    if ($this->envGet('DRUPAL_MIGRATION_SKIP', '0') === '1') {
+      return 'DRUPAL_MIGRATION_SKIP is set';
+    }
+
     // `migrate:import` is provided by the migrate_tools module.
     return $this->moduleHandler->moduleExists('migrate_tools') ? NULL : 'migrate_tools module is not enabled';
   }
@@ -41,9 +49,21 @@ class ImportMigrationsDeployStep extends DeployStepBase {
    * {@inheritdoc}
    */
   public function run(): void {
-    // Import every migration and update previously-imported rows. Drush builds
-    // and processes the batch across subprocesses.
-    $this->drush('migrate:import', [], ['all' => TRUE, 'update' => TRUE]);
+    $options = ['all' => TRUE];
+
+    // A limit of 0 imports everything; any positive value caps the batch.
+    $limit = (int) $this->envGet('DRUPAL_MIGRATION_IMPORT_LIMIT', '50');
+
+    if ($limit > 0) {
+      $options['limit'] = $limit;
+    }
+
+    if ($this->envGet('DRUPAL_MIGRATION_UPDATE', '0') === '1') {
+      $options['update'] = TRUE;
+    }
+
+    // Drush builds and processes the batch across subprocesses.
+    $this->drush('migrate:import', [], $options);
   }
 
 }
