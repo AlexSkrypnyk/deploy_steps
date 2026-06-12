@@ -2,8 +2,7 @@
     "permissions": {
         "allow": [
             "Bash(ahoy:*)",
-            "Bash(composer:*)",
-            "Bash(make:*)"
+            "Bash(composer:*)"
         ],
         "deny": []
     }
