@@ -7,12 +7,12 @@ namespace Drupal\deploy_steps;
 use Drupal\Core\Site\Settings;
 
 /**
- * Reads the current environment and decides whether it is production.
+ * Reads the current environment machine name.
  *
  * Opt-in capability for steps whose skip condition depends on the environment.
- * A step composes it with `use EnvironmentTrait;` and calls ::environment() or
- * ::isProduction(); it is kept out of DeployStepBase so the helpers are pulled
- * in only where they are needed.
+ * A step composes it with `use EnvironmentTrait;` and calls ::environment(); it
+ * is kept out of DeployStepBase so the helper is pulled in only where it is
+ * needed.
  */
 trait EnvironmentTrait {
 
@@ -30,19 +30,6 @@ trait EnvironmentTrait {
    */
   protected function environment(): string {
     return (string) Settings::get('environment', '');
-  }
-
-  /**
-   * Whether the current environment is production.
-   *
-   * Treats the 'prod' environment marker as production. Override this method
-   * if a site uses a different production marker.
-   *
-   * @return bool
-   *   TRUE when running in the production environment.
-   */
-  protected function isProduction(): bool {
-    return $this->environment() === 'prod';
   }
 
 }

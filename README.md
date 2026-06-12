@@ -80,12 +80,12 @@ use Drupal\deploy_steps\EnvironmentTrait;
 )]
 final class RebuildSearchIndex extends DeployStepBase {
 
-  // Opt in to the environment helpers used by skip() below.
+  // Opt in to the environment() helper used by skip() below.
   use EnvironmentTrait;
 
   // Return NULL to run, or a human-readable reason to skip (logged verbatim).
   public function skip(): ?string {
-    return $this->isProduction() ? 'production environment' : NULL;
+    return $this->environment() === 'prod' ? 'production environment' : NULL;
   }
 
   public function run(): void {
@@ -97,7 +97,7 @@ final class RebuildSearchIndex extends DeployStepBase {
 
 - **`weight`** sets the run order within the phase (lower runs first).
 - **`phase`** chooses when the step runs: `PHASE_PRE` (before the `deploy:hook` body) or `PHASE_POST` (after it, the default).
-- **`skip()`** decides whether the step runs. Returning a *reason* instead of a bare boolean means every skip is explicit and explained in the deploy log. The `environment()` / `isProduction()` helpers from `EnvironmentTrait` (composed with `use`) cover the common case.
+- **`skip()`** decides whether the step runs. Returning a *reason* instead of a bare boolean means every skip is explicit and explained in the deploy log. The `environment()` helper from `EnvironmentTrait` (composed with `use`) covers the common case - compare it to your environment marker, e.g. `=== 'prod'`.
 - **`run()`** is the step. It must be idempotent; throw to abort the deploy.
 - Inject services with `ContainerFactoryPluginInterface::create()`, like any Drupal plugin (see the `RecordEnvironment` example in the `deploy_steps_example` submodule).
 
@@ -105,11 +105,11 @@ A single module can declare as many steps as it needs - each is its own plugin w
 
 ### Long-running and memory-bound work
 
-`DrushCommandTrait` provides a `drush()` helper for heavy work (migrations, source-DB import, bulk reindex); a step composes it with `use`. It runs the given Drush sub-command in its own process - a fresh memory ceiling and bootstrap, output streamed to the deploy log, no timeout, and a non-zero exit throws to abort the deploy. Commands that build a Drupal batch (`migrate:import`, `search-api:index`) are then processed by Drush across subprocesses that restart as memory fills up, the same way a sandboxed `hook_update_N()` is re-entered.
+`DrushTrait` provides a `drush()` helper for heavy work (migrations, source-DB import, bulk reindex); a step composes it with `use`. It runs the given Drush sub-command in its own process - a fresh memory ceiling and bootstrap, output streamed to the deploy log, no timeout, and a non-zero exit throws to abort the deploy. Commands that build a Drupal batch (`migrate:import`, `search-api:index`) are then processed by Drush across subprocesses that restart as memory fills up, the same way a sandboxed `hook_update_N()` is re-entered.
 
 ### The environment convention
 
-`environment()` reads `$settings['environment']` (set in `settings.php`), and `isProduction()` treats the `'prod'` value as production. Both live in `EnvironmentTrait`, which a step composes with `use`. If your site uses a different production marker, override `isProduction()` in your step (or its base class). The module does not hardcode any project-specific environment names.
+`environment()` reads `$settings['environment']` (set in `settings.php`); it lives in `EnvironmentTrait`, which a step composes with `use`. Compare it against your environment marker - e.g. `$this->environment() === 'prod'` - to gate a step. The module does not hardcode any project-specific environment names.
 
 ## Example submodules
 

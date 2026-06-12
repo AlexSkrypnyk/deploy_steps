@@ -13,7 +13,7 @@ use Drupal\Core\Plugin\PluginBase;
  * the plugin definition and a default ::skip() that always runs. Capability
  * helpers are opt-in traits a step composes with `use` as needed -
  * \Drupal\deploy_steps\EnvironmentTrait for environment-conditional skips and
- * \Drupal\deploy_steps\DrushCommandTrait for redispatching a Drush sub-command.
+ * \Drupal\deploy_steps\DrushTrait for redispatching a Drush sub-command.
  * Subclasses implement ::run() and, when conditional, override ::skip().
  */
 abstract class DeployStepBase extends PluginBase implements DeployStepInterface {

@@ -10,7 +10,7 @@ use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\deploy_steps\Attribute\DeployStep;
 use Drupal\deploy_steps\DeployStepBase;
 use Drupal\deploy_steps\DeployStepInterface;
-use Drupal\deploy_steps\DrushCommandTrait;
+use Drupal\deploy_steps\DrushTrait;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -29,7 +29,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 )]
 final class ReindexSearchApi extends DeployStepBase implements ContainerFactoryPluginInterface {
 
-  use DrushCommandTrait;
+  use DrushTrait;
 
   /**
    * Constructs a ReindexSearchApi object.

@@ -16,27 +16,36 @@ use Drupal\Tests\UnitTestCase;
 class EnvironmentTraitTest extends UnitTestCase {
 
   /**
-   * Tests environment detection.
+   * Tests that environment() returns the configured environment marker.
    *
    * @dataProvider dataProviderEnvironment
    */
-  public function testEnvironment(string $value, bool $expected_production): void {
+  public function testEnvironment(string $value): void {
     new Settings(['environment' => $value]);
     $host = $this->createHost();
 
     $this->assertSame($value, $this->invoke($host, 'environment'));
-    $this->assertSame($expected_production, $this->invoke($host, 'isProduction'));
   }
 
   /**
    * Data provider for testEnvironment().
    */
   public static function dataProviderEnvironment(): \Iterator {
-    yield 'production' => ['prod', TRUE];
-    yield 'local' => ['local', FALSE];
-    yield 'ci' => ['ci', FALSE];
-    yield 'stage' => ['stage', FALSE];
-    yield 'dev' => ['dev', FALSE];
+    yield 'production' => ['prod'];
+    yield 'local' => ['local'];
+    yield 'ci' => ['ci'];
+    yield 'stage' => ['stage'];
+    yield 'dev' => ['dev'];
+  }
+
+  /**
+   * Tests that environment() is empty when the site does not set it.
+   */
+  public function testEnvironmentDefaultsToEmpty(): void {
+    new Settings([]);
+    $host = $this->createHost();
+
+    $this->assertSame('', $this->invoke($host, 'environment'));
   }
 
   /**
