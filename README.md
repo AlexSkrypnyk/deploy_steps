@@ -15,6 +15,7 @@
 ![LICENSE](https://img.shields.io/github/license/AlexSkrypnyk/deploy_steps)
 ![Renovate](https://img.shields.io/badge/renovate-enabled-green?logo=renovatebot)
 
+![PHP 8.2](https://img.shields.io/badge/PHP-8.2-777BB4.svg)
 ![PHP 8.3](https://img.shields.io/badge/PHP-8.3-777BB4.svg)
 ![PHP 8.4](https://img.shields.io/badge/PHP-8.4-777BB4.svg)
 ![PHP 8.5](https://img.shields.io/badge/PHP-8.5-777BB4.svg)
@@ -36,7 +37,7 @@ It owns the single pair of Drush `pre-command` / `post-command` hooks on `deploy
 ## Requirements
 
 - Drupal `^10.3 || ^11`
-- PHP `8.3+`
+- PHP `8.2+`
 - [Drush](https://www.drush.org/) `^12.5 || ^13` - the module's entire integration is a pair of Drush command hooks
 
 ## Installation

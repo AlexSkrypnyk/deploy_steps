@@ -31,7 +31,7 @@ final class RecordEnvironment extends DeployStepBase implements ContainerFactory
   /**
    * The state key the deployed environment is recorded under.
    */
-  public const string STATE_KEY = 'deploy_steps_example.deployed_environment';
+  public const STATE_KEY = 'deploy_steps_example.deployed_environment';
 
   /**
    * Constructs a RecordEnvironment object.
