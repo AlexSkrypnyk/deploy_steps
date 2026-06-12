@@ -11,7 +11,7 @@ use Drupal\Tests\UnitTestCase;
 /**
  * Tests the RunExternalCommandDeployStep example deploy step.
  *
- * The pattern to copy for a step that shells out: mock processRun() so the real
+ * The pattern to copy for a step that shells out: mock exec() so the real
  * process never runs, then assert the command the step would execute.
  *
  * @group DeployStep
@@ -26,10 +26,10 @@ class RunExternalCommandDeployStepTest extends UnitTestCase {
 
     $step = $this->getMockBuilder(RunExternalCommandDeployStep::class)
       ->setConstructorArgs([[], 'run_external_command', []])
-      ->onlyMethods(['processRun'])
+      ->onlyMethods(['exec'])
       ->getMock();
     $step->expects($this->once())
-      ->method('processRun')
+      ->method('exec')
       ->with('/opt/deploy/post-deploy.sh');
 
     $step->run();

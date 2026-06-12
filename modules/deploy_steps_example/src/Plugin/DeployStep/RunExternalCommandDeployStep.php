@@ -10,18 +10,18 @@ use Drupal\deploy_steps\Attribute\DeployStep;
 use Drupal\deploy_steps\DeployStepBase;
 use Drupal\deploy_steps\DeployStepInterface;
 use Drupal\deploy_steps\EnvironmentTrait;
-use Drupal\deploy_steps\ProcessTrait;
+use Drupal\deploy_steps\ExecTrait;
 
 /**
  * Runs an external command on every deploy.
  *
  * Demonstrates two capability traits at once: EnvironmentTrait to gate the step
- * by environment, and ProcessTrait to call something outside Drupal and Drush.
- * The step skips on the local environment, and when the command (read from
+ * by environment, and ExecTrait to call something outside Drupal and Drush. The
+ * step skips on the local environment, and when the command (read from
  * $settings['deploy_steps_example_command']) is unset or missing - so enabling
- * the module never breaks a deploy on its own. ProcessTrait::processRun() runs
- * the command through Symfony's Process, streaming output and throwing on a
- * non-zero exit to abort the deploy.
+ * the module never breaks a deploy on its own. ExecTrait::exec() runs the
+ * command through Symfony's Process, streaming output and throwing on a non-zero
+ * exit to abort the deploy.
  */
 #[DeployStep(
   id: 'run_external_command',
@@ -32,7 +32,7 @@ use Drupal\deploy_steps\ProcessTrait;
 class RunExternalCommandDeployStep extends DeployStepBase {
 
   use EnvironmentTrait;
-  use ProcessTrait;
+  use ExecTrait;
 
   /**
    * {@inheritdoc}
@@ -59,7 +59,7 @@ class RunExternalCommandDeployStep extends DeployStepBase {
    * {@inheritdoc}
    */
   public function run(): void {
-    $this->processRun($this->commandPath());
+    $this->exec($this->commandPath());
   }
 
   /**

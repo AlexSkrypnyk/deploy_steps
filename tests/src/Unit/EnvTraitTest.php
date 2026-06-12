@@ -15,24 +15,24 @@ use Drupal\Tests\UnitTestCase;
 class EnvTraitTest extends UnitTestCase {
 
   /**
-   * Tests that envGet() returns the value, or the default when unset.
+   * Tests that env() returns the value, or the default when unset.
    *
-   * @dataProvider dataProviderEnvGet
+   * @dataProvider dataProviderEnv
    */
-  public function testEnvGet(?string $value, string $default, string $expected): void {
+  public function testEnv(?string $value, string $default, string $expected): void {
     if ($value !== NULL) {
       putenv('DEPLOY_STEPS_TEST_VAR=' . $value);
     }
 
     $host = $this->createHost();
 
-    $this->assertSame($expected, $this->invokeEnvGet($host, $default));
+    $this->assertSame($expected, $this->invokeEnv($host, $default));
   }
 
   /**
-   * Data provider for testEnvGet().
+   * Data provider for testEnv().
    */
-  public static function dataProviderEnvGet(): \Iterator {
+  public static function dataProviderEnv(): \Iterator {
     yield 'set' => ['custom', 'fallback', 'custom'];
     yield 'unset returns default' => [NULL, 'fallback', 'fallback'];
     // A variable set to an empty string is still set, so it wins over the default.
@@ -64,18 +64,18 @@ class EnvTraitTest extends UnitTestCase {
   }
 
   /**
-   * Invokes the protected envGet() on the given object.
+   * Invokes the protected env() on the given object.
    *
    * @param object $host
    *   The object composing EnvTrait.
    * @param string $default
-   *   The default forwarded to envGet().
+   *   The default forwarded to env().
    *
    * @return mixed
-   *   The value returned by envGet().
+   *   The value returned by env().
    */
-  protected function invokeEnvGet(object $host, string $default): mixed {
-    $reflection = new \ReflectionMethod($host, 'envGet');
+  protected function invokeEnv(object $host, string $default): mixed {
+    $reflection = new \ReflectionMethod($host, 'env');
 
     return $reflection->invoke($host, 'DEPLOY_STEPS_TEST_VAR', $default);
   }

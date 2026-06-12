@@ -37,7 +37,7 @@ class ImportMigrationsDeployStep extends DeployStepBase {
    * {@inheritdoc}
    */
   public function skip(): ?string {
-    if ($this->envGet('DRUPAL_MIGRATION_SKIP', '0') === '1') {
+    if ($this->env('DRUPAL_MIGRATION_SKIP', '0') === '1') {
       return 'DRUPAL_MIGRATION_SKIP is set';
     }
 
@@ -52,13 +52,13 @@ class ImportMigrationsDeployStep extends DeployStepBase {
     $options = ['all' => TRUE];
 
     // A limit of 0 imports everything; any positive value caps the batch.
-    $limit = (int) $this->envGet('DRUPAL_MIGRATION_IMPORT_LIMIT', '50');
+    $limit = (int) $this->env('DRUPAL_MIGRATION_IMPORT_LIMIT', '50');
 
     if ($limit > 0) {
       $options['limit'] = $limit;
     }
 
-    if ($this->envGet('DRUPAL_MIGRATION_UPDATE', '0') === '1') {
+    if ($this->env('DRUPAL_MIGRATION_UPDATE', '0') === '1') {
       $options['update'] = TRUE;
     }
 

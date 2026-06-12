@@ -109,7 +109,7 @@ A single module can declare as many steps as it needs - each is its own plugin w
 
 ### Running an external command
 
-`ProcessTrait` provides a `processRun()` helper for shelling out to a non-Drush program; a step composes it with `use`. It runs the command through Symfony's `Process` - streaming output to the deploy log, and throwing on a non-zero exit to abort the deploy. The signature is `processRun(string $command, array $arguments = [], array $inputs = [], array $env = [], int $timeout = 60, int $idle_timeout = 30)`; pass `0` for either timeout to disable it on long-running work.
+`ExecTrait` provides an `exec()` helper for shelling out to a non-Drush program; a step composes it with `use`. It runs the command through Symfony's `Process` - streaming output to the deploy log, and throwing on a non-zero exit to abort the deploy. The signature is `exec(string $command, array $arguments = [], array $inputs = [], array $env = [], int $timeout = 60, int $idle_timeout = 30)`; pass `0` for either timeout to disable it on long-running work.
 
 ### The environment convention
 
@@ -117,18 +117,18 @@ A single module can declare as many steps as it needs - each is its own plugin w
 
 ### Reading environment variables
 
-`EnvTrait` provides an `envGet($name, $default)` helper for steps configured by environment variables the deploy pipeline exports; a step composes it with `use`. `ImportMigrationsDeployStep` reads `DRUPAL_MIGRATION_*` variables this way to skip itself and shape the import. This is distinct from `environment()` above - that reads the Drupal environment marker from `settings.php`, while `envGet()` reads a raw shell environment variable.
+`EnvTrait` provides an `env($name, $default)` helper for steps configured by environment variables the deploy pipeline exports; a step composes it with `use`. `ImportMigrationsDeployStep` reads `DRUPAL_MIGRATION_*` variables this way to skip itself and shape the import. This is distinct from `environment()` above - that reads the Drupal environment marker from `settings.php`, while `env()` reads a raw shell environment variable.
 
 ### Testing a deploy step
 
-A step that calls `drush()` or `processRun()` can be unit tested without a real Drush or process: mock that one method on the step (declare the step non-`final` so it can be mocked) and assert the command it would run.
+A step that calls `drush()` or `exec()` can be unit tested without a real Drush or process: mock that one method on the step (declare the step non-`final` so it can be mocked) and assert the command it would run.
 
 ```php
 $step = $this->getMockBuilder(RunExternalCommandDeployStep::class)
   ->setConstructorArgs([[], 'run_external_command', []])
-  ->onlyMethods(['processRun'])
+  ->onlyMethods(['exec'])
   ->getMock();
-$step->expects($this->once())->method('processRun')->with('/path/to/script');
+$step->expects($this->once())->method('exec')->with('/path/to/script');
 $step->run();
 ```
 
@@ -140,7 +140,7 @@ The optional `deploy_steps_example` submodule demonstrates the patterns - enable
 
 - `ImportMigrationsDeployStep` redispatches `migrate:import`, shaped by `DRUPAL_MIGRATION_*` environment variables the deploy pipeline exports (skipped via `DRUPAL_MIGRATION_SKIP=1`, or when the `migrate_tools` module is absent).
 - `ReindexSearchApiDeployStep` redispatches `search-api:index` (skipped unless the `search_api` module is enabled).
-- `RunExternalCommandDeployStep` runs an external program via `ProcessTrait`, and gates itself on the environment via `EnvironmentTrait` (skipped on the `local` environment, or when `$settings['deploy_steps_example_command']` is unset or missing).
+- `RunExternalCommandDeployStep` runs an external program via `ExecTrait`, and gates itself on the environment via `EnvironmentTrait` (skipped on the `local` environment, or when `$settings['deploy_steps_example_command']` is unset or missing).
 
 `ImportMigrationsDeployStep` and `ReindexSearchApiDeployStep` show the bulk-work pattern - each redispatched command builds a Drupal batch that Drush processes across restarting subprocesses (see [Long-running and memory-bound work](#long-running-and-memory-bound-work) above). `ReindexSearchApiDeployStep` uses `search_api`, listed under `suggest`. `ImportMigrationsDeployStep` uses `migrate_tools`, which needs `migrate_plus` to enable:
 
@@ -149,7 +149,7 @@ composer require drupal/search_api
 composer require drupal/migrate_tools drupal/migrate_plus
 ```
 
-`RunExternalCommandDeployStep` shells out to a non-Drush program with `ProcessTrait` (preferred over raw `exec()`/`shell_exec()` because it streams output and throws on a non-zero exit). Point the setting at an executable to enable it:
+`RunExternalCommandDeployStep` shells out to a non-Drush program with `ExecTrait` (preferred over a raw `shell_exec()` because it streams output and throws on a non-zero exit). Point the setting at an executable to enable it:
 
 ```php
 // settings.php

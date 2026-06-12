@@ -24,7 +24,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * \Drupal\deploy_steps\EnvironmentTrait for environment-conditional skips,
  * \Drupal\deploy_steps\EnvTrait for reading environment variables,
  * \Drupal\deploy_steps\DrushTrait for redispatching a Drush sub-command, and
- * \Drupal\deploy_steps\ProcessTrait for running an external command. Subclasses
+ * \Drupal\deploy_steps\ExecTrait for running an external command. Subclasses
  * implement ::run() and, when conditional, override ::skip().
  */
 abstract class DeployStepBase extends PluginBase implements DeployStepInterface, ContainerFactoryPluginInterface {
