@@ -1,8 +1,0 @@
-global:
-  css:
-    component:
-      css/deploy_steps.css: {}
-  js:
-    js/deploy_steps.js: {}
-  dependencies:
-    - core/drupal

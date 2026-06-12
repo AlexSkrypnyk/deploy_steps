@@ -1,7 +1,7 @@
 {
   "name": "@drupal/deploy_steps",
   "version": "0.1.0",
-  "description": "Provides deploy_steps functionality..",
+  "description": "Runs repeatable, run-on-every-deploy logic as discoverable deploy step plugins.",
   "license": "GPL-2.0-or-later",
   "contributors": [],
   "scripts": {

@@ -1,0 +1,7 @@
+name: 'Deploy Steps Example'
+type: module
+description: 'Example deploy step that records the environment of the most recent deploy.'
+package: 'Deploy Steps'
+core_version_requirement: ^10.3 || ^11
+dependencies:
+  - deploy_steps:deploy_steps

@@ -1,13 +1,13 @@
 {
     "name": "drupal/deploy_steps",
-    "description": "Provides deploy_steps functionality.",
+    "description": "Runs repeatable, run-on-every-deploy logic as discoverable deploy step plugins.",
     "type": "drupal-module",
     "license": "GPL-2.0-or-later",
     "authors": [
         {
-            "name": "Your Name",
-            "email": "deploy_steps@yourusername.com",
-            "homepage": "https://www.drupal.org/u/yourusername",
+            "name": "Alex Skrypnyk",
+            "email": "alex@drevops.com",
+            "homepage": "https://www.drupal.org/u/AlexSkrypnyk",
             "role": "Maintainer"
         }
     ],
@@ -17,12 +17,7 @@
         "source": "https://git.drupalcode.org/project/deploy_steps"
     },
     "require": {
-        "php": ">=8.2"
-    },
-    "require-dev": {
-        "drupal/autologout": "^2"
-    },
-    "suggest": {
-        "drupal/config_ignore": "Ignore certain configuration during import."
+        "php": ">=8.3",
+        "drush/drush": "^12.5 || ^13"
     }
 }

@@ -1,5 +1,11 @@
 services:
-  deploy_steps.service:
-    class: Drupal\deploy_steps\DeployStepsService
-    arguments:
-      - '@config.factory'
+  plugin.manager.deploy_step:
+    class: Drupal\deploy_steps\DeployStepManager
+    parent: default_plugin_manager
+
+  logger.channel.deploy_steps:
+    parent: logger.channel_base
+    arguments: ['deploy_steps']
+
+  Drupal\deploy_steps\DeployStepRunner:
+    arguments: ['@plugin.manager.deploy_step', '@logger.channel.deploy_steps']

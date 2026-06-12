@@ -1,5 +1,0 @@
-deploy_steps.settings_form:
-  title: 'Deploy Steps'
-  description: 'Deploy Steps settings'
-  route_name: deploy_steps.settings_form
-  parent: system.admin_config_development

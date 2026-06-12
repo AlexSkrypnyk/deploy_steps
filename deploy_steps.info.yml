@@ -1,9 +1,4 @@
 name: Deploy Steps
 type: module
-description: Deploy Steps example.
-package: Testing
-core_version_requirement: ^10 || ^11
-
-dependencies:
-  - drupal:config
-  - drupal:user
+description: 'Runs repeatable, run-on-every-deploy logic as discoverable deploy step plugins.'
+core_version_requirement: ^10.3 || ^11
