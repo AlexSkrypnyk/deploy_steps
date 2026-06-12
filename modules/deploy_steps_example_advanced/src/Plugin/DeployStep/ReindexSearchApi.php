@@ -27,7 +27,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
   weight: 20,
   phase: DeployStepInterface::PHASE_POST,
 )]
-final class ReindexSearchApi extends DeployStepBase implements ContainerFactoryPluginInterface {
+class ReindexSearchApi extends DeployStepBase implements ContainerFactoryPluginInterface {
 
   use DrushTrait;
 
@@ -69,8 +69,6 @@ final class ReindexSearchApi extends DeployStepBase implements ContainerFactoryP
 
   /**
    * {@inheritdoc}
-   *
-   * @codeCoverageIgnore
    */
   public function run(): void {
     // Index pending items into every index. Search API builds the batch and

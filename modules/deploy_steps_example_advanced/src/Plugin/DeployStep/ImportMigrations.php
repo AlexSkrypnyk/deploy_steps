@@ -28,7 +28,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
   weight: 10,
   phase: DeployStepInterface::PHASE_POST,
 )]
-final class ImportMigrations extends DeployStepBase implements ContainerFactoryPluginInterface {
+class ImportMigrations extends DeployStepBase implements ContainerFactoryPluginInterface {
 
   use DrushTrait;
 
@@ -70,8 +70,6 @@ final class ImportMigrations extends DeployStepBase implements ContainerFactoryP
 
   /**
    * {@inheritdoc}
-   *
-   * @codeCoverageIgnore
    */
   public function run(): void {
     // Import every migration and update previously-imported rows. Drush builds

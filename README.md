@@ -107,9 +107,28 @@ A single module can declare as many steps as it needs - each is its own plugin w
 
 `DrushTrait` provides a `drush()` helper for heavy work (migrations, source-DB import, bulk reindex); a step composes it with `use`. It runs the given Drush sub-command in its own process - a fresh memory ceiling and bootstrap, output streamed to the deploy log, no timeout, and a non-zero exit throws to abort the deploy. Commands that build a Drupal batch (`migrate:import`, `search-api:index`) are then processed by Drush across subprocesses that restart as memory fills up, the same way a sandboxed `hook_update_N()` is re-entered.
 
+### Running an external command
+
+`ProcessTrait` provides a `processRun()` helper for shelling out to a non-Drush program; a step composes it with `use`. It runs the command through Symfony's `Process` - streaming output to the deploy log, and throwing on a non-zero exit to abort the deploy. The signature is `processRun(string $command, array $arguments = [], array $inputs = [], array $env = [], int $timeout = 60, int $idle_timeout = 30)`; pass `0` for either timeout to disable it on long-running work.
+
 ### The environment convention
 
 `environment()` reads `$settings['environment']` (set in `settings.php`); it lives in `EnvironmentTrait`, which a step composes with `use`. Compare it against your environment marker - e.g. `$this->environment() === 'prod'` - to gate a step. The module does not hardcode any project-specific environment names.
+
+### Testing a deploy step
+
+A step that calls `drush()` or `processRun()` can be unit tested without a real Drush or process: mock that one method on the step (declare the step non-`final` so it can be mocked) and assert the command it would run.
+
+```php
+$step = $this->getMockBuilder(RunExternalCommand::class)
+  ->setConstructorArgs([[], 'run_external_command', []])
+  ->onlyMethods(['processRun'])
+  ->getMock();
+$step->expects($this->once())->method('processRun')->with('/path/to/script');
+$step->run();
+```
+
+The `deploy_steps_example_advanced` submodule ships a unit test for each of its steps - `ImportMigrationsTest`, `ReindexSearchApiTest`, and `RunExternalCommandTest` - as patterns to copy.
 
 ## Example submodules
 
@@ -121,7 +140,7 @@ Two optional submodules demonstrate the patterns - enable whichever you want to 
 
 - `ImportMigrations` redispatches `migrate:import --all --update` (skipped unless the `migrate_tools` module is enabled).
 - `ReindexSearchApi` redispatches `search-api:index` (skipped unless the `search_api` module is enabled).
-- `RunExternalScript` runs an external program via Symfony's `Process` (skipped unless `$settings['deploy_steps_example_script']` points at an existing file).
+- `RunExternalCommand` runs an external program via `ProcessTrait` (skipped unless `$settings['deploy_steps_example_command']` points at an existing file).
 
 `ImportMigrations` and `ReindexSearchApi` show the bulk-work pattern - each redispatched command builds a Drupal batch that Drush processes across restarting subprocesses (see [Long-running and memory-bound work](#long-running-and-memory-bound-work) above). `ReindexSearchApi` uses `search_api`, listed under `suggest`. `ImportMigrations` uses `migrate_tools`, which needs `migrate_plus` to enable:
 
@@ -130,11 +149,11 @@ composer require drupal/search_api
 composer require drupal/migrate_tools drupal/migrate_plus
 ```
 
-`RunExternalScript` shells out to a non-Drush program with Symfony's `Process` (preferred over raw `exec()`/`shell_exec()` because it streams output and throws on a non-zero exit). Point the setting at an executable to enable it:
+`RunExternalCommand` shells out to a non-Drush program with `ProcessTrait` (preferred over raw `exec()`/`shell_exec()` because it streams output and throws on a non-zero exit). Point the setting at an executable to enable it:
 
 ```php
 // settings.php
-$settings['deploy_steps_example_script'] = '/path/to/post-deploy.sh';
+$settings['deploy_steps_example_command'] = '/path/to/post-deploy.sh';
 ```
 
 ## Local development
