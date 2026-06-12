@@ -8,15 +8,13 @@ use Drupal\deploy_steps\DeployStepInterface;
 use Drupal\deploy_steps\DeployStepManager;
 use Drupal\deploy_steps\DeployStepRunner;
 use Drupal\Tests\UnitTestCase;
-use PHPUnit\Framework\Attributes\Group;
 use Psr\Log\LoggerInterface;
 
 /**
  * Tests the DeployStepRunner.
  *
- * @package Drupal\deploy_steps\Tests
+ * @group DeployStep
  */
-#[Group('DeployStep')]
 class DeployStepRunnerTest extends UnitTestCase {
 
   /**

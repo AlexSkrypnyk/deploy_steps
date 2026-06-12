@@ -9,14 +9,12 @@ use Drupal\deploy_steps\Drush\Commands\DeployStepCommands;
 use Drupal\deploy_steps\DeployStepInterface;
 use Drupal\deploy_steps\DeployStepRunner;
 use Drupal\Tests\UnitTestCase;
-use PHPUnit\Framework\Attributes\Group;
 
 /**
  * Tests the DeployStepCommands runner hooks.
  *
- * @package Drupal\deploy_steps\Tests
+ * @group DeployStep
  */
-#[Group('DeployStep')]
 class DeployStepCommandsTest extends UnitTestCase {
 
   /**

@@ -11,14 +11,12 @@ use Drupal\deploy_steps\DeployStepManager;
 use Drupal\deploy_steps\DeployStepRunner;
 use Drupal\deploy_steps_example\Plugin\DeployStep\RecordEnvironment;
 use Drupal\KernelTests\KernelTestBase;
-use PHPUnit\Framework\Attributes\Group;
 
 /**
  * Tests deploy step discovery, the runner, and the command on a site.
  *
- * @package Drupal\deploy_steps\Tests
+ * @group DeployStep
  */
-#[Group('DeployStep')]
 class DeployStepCommandsTest extends KernelTestBase {
 
   /**

@@ -8,15 +8,12 @@ use Drupal\Core\Site\Settings;
 use Drupal\deploy_steps\DeployStepBase;
 use Drupal\deploy_steps\DeployStepInterface;
 use Drupal\Tests\UnitTestCase;
-use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Group;
 
 /**
  * Tests the DeployStepBase helpers.
  *
- * @package Drupal\deploy_steps\Tests
+ * @group DeployStep
  */
-#[Group('DeployStep')]
 class DeployStepBaseTest extends UnitTestCase {
 
   /**
@@ -48,8 +45,9 @@ class DeployStepBaseTest extends UnitTestCase {
 
   /**
    * Tests environment detection.
+   *
+   * @dataProvider dataProviderEnvironment
    */
-  #[DataProvider('dataProviderEnvironment')]
   public function testEnvironment(string $value, bool $expected_production): void {
     new Settings(['environment' => $value]);
     $step = $this->createStep([]);
