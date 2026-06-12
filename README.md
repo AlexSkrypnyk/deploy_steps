@@ -106,9 +106,31 @@ A single module can declare as many steps as it needs - each is its own plugin w
 
 `environment()` reads `$settings['environment']` (set in `settings.php`), and `isProduction()` treats the `'prod'` value as production. If your site uses a different production marker, override `isProduction()` in your step (or its base class). The module does not hardcode any project-specific environment names.
 
-## Example submodule
+## Example submodules
 
-The optional `deploy_steps_example` submodule ships a single `RecordEnvironment` step that records the current environment to State on every deploy. It is a minimal, safe demonstration of the pattern (dependency injection via `create()`, the `environment()` helper, an idempotent `run()`). Enable it to see deploy steps run, then model your own steps on it.
+Two optional submodules demonstrate the patterns - enable whichever you want to study, then model your own steps on them.
+
+`deploy_steps_example` ships a single `RecordEnvironment` step that records the current environment to State on every deploy. It is the minimal, safe demonstration of the pattern: dependency injection via `create()`, the `environment()` helper, and an idempotent `run()`.
+
+`deploy_steps_example_advanced` demonstrates real-world deploy work. Each step gates itself out when its prerequisite is missing, so enabling the module never breaks a deploy on its own:
+
+- `ImportMigrations` redispatches `migrate:import --all --update` (gated on the `migrate_tools` module).
+- `ReindexSearchApi` redispatches `search-api:index` (gated on the `search_api` module).
+- `RunExternalScript` runs an external program via Symfony's `Process` (gated unless `$settings['deploy_steps_example_script']` points at an existing file).
+
+`ImportMigrations` and `ReindexSearchApi` show the bulk-work pattern - each redispatched command builds a Drupal batch that Drush processes across restarting subprocesses (see [Long-running and memory-bound work](#long-running-and-memory-bound-work) above). `ReindexSearchApi` uses `search_api`, listed under `suggest`. `ImportMigrations` uses `migrate_tools`, which needs `migrate_plus` to enable:
+
+```bash
+composer require drupal/search_api
+composer require drupal/migrate_tools drupal/migrate_plus
+```
+
+`RunExternalScript` shells out to a non-Drush program with Symfony's `Process` (preferred over raw `exec()`/`shell_exec()` because it streams output and throws on a non-zero exit). Point the setting at an executable to enable it:
+
+```php
+// settings.php
+$settings['deploy_steps_example_script'] = '/path/to/post-deploy.sh';
+```
 
 ## Local development
 

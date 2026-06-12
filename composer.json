@@ -19,5 +19,8 @@
     "require": {
         "php": ">=8.3",
         "drush/drush": "^12.5 || ^13"
+    },
+    "suggest": {
+        "drupal/search_api": "Provides the 'search-api:index' command redispatched by the example 'Index pending Search API items' deploy step."
     }
 }
