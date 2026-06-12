@@ -2,21 +2,21 @@
 
 declare(strict_types=1);
 
-namespace Drupal\Tests\deploy_steps_example_advanced\Unit;
+namespace Drupal\Tests\deploy_steps_example\Unit;
 
 use Drupal\Core\Site\Settings;
-use Drupal\deploy_steps_example_advanced\Plugin\DeployStep\RunExternalCommand;
+use Drupal\deploy_steps_example\Plugin\DeployStep\RunExternalCommandDeployStep;
 use Drupal\Tests\UnitTestCase;
 
 /**
- * Tests the RunExternalCommand example deploy step.
+ * Tests the RunExternalCommandDeployStep example deploy step.
  *
  * The pattern to copy for a step that shells out: mock processRun() so the real
  * process never runs, then assert the command the step would execute.
  *
  * @group DeployStep
  */
-class RunExternalCommandTest extends UnitTestCase {
+class RunExternalCommandDeployStepTest extends UnitTestCase {
 
   /**
    * Tests that run() shells out to the configured command.
@@ -24,7 +24,7 @@ class RunExternalCommandTest extends UnitTestCase {
   public function testRun(): void {
     new Settings(['deploy_steps_example_command' => '/opt/deploy/post-deploy.sh']);
 
-    $step = $this->getMockBuilder(RunExternalCommand::class)
+    $step = $this->getMockBuilder(RunExternalCommandDeployStep::class)
       ->setConstructorArgs([[], 'run_external_command', []])
       ->onlyMethods(['processRun'])
       ->getMock();
@@ -36,13 +36,13 @@ class RunExternalCommandTest extends UnitTestCase {
   }
 
   /**
-   * Tests the skip reason for each command-setting state.
+   * Tests the skip reason for each environment and command-setting state.
    *
    * @dataProvider dataProviderSkip
    */
-  public function testSkip(string $command, ?string $expected): void {
-    new Settings(['deploy_steps_example_command' => $command]);
-    $step = new RunExternalCommand([], 'run_external_command', []);
+  public function testSkip(string $environment, string $command, ?string $expected): void {
+    new Settings(['environment' => $environment, 'deploy_steps_example_command' => $command]);
+    $step = new RunExternalCommandDeployStep([], 'run_external_command', []);
 
     $this->assertSame($expected, $step->skip());
   }
@@ -51,10 +51,12 @@ class RunExternalCommandTest extends UnitTestCase {
    * Data provider for testSkip().
    */
   public static function dataProviderSkip(): \Iterator {
-    yield 'unset' => ['', 'no external deploy command configured'];
-    yield 'missing file' => ['/does/not/exist.sh', 'external deploy command not found: /does/not/exist.sh'];
-    // An existing file (this test file) means the step runs.
-    yield 'present file' => [__FILE__, NULL];
+    // The local environment skips even with a valid command.
+    yield 'local environment' => ['local', __FILE__, 'local environment'];
+    yield 'unset command' => ['prod', '', 'no external deploy command configured'];
+    yield 'missing file' => ['prod', '/does/not/exist.sh', 'external deploy command not found: /does/not/exist.sh'];
+    // An existing file (this test file) in a non-local environment runs.
+    yield 'present file' => ['prod', __FILE__, NULL];
   }
 
   /**

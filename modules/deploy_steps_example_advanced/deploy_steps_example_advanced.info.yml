@@ -1,7 +1,0 @@
-name: 'Deploy Steps Advanced Examples'
-type: module
-description: 'Example deploy steps that redispatch Drush commands and run external scripts.'
-package: 'Deploy Steps'
-core_version_requirement: ^10.3 || ^11
-dependencies:
-  - deploy_steps:deploy_steps

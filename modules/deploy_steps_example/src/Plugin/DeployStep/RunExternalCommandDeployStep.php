@@ -2,24 +2,26 @@
 
 declare(strict_types=1);
 
-namespace Drupal\deploy_steps_example_advanced\Plugin\DeployStep;
+namespace Drupal\deploy_steps_example\Plugin\DeployStep;
 
 use Drupal\Core\Site\Settings;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\deploy_steps\Attribute\DeployStep;
 use Drupal\deploy_steps\DeployStepBase;
 use Drupal\deploy_steps\DeployStepInterface;
+use Drupal\deploy_steps\EnvironmentTrait;
 use Drupal\deploy_steps\ProcessTrait;
 
 /**
  * Runs an external command on every deploy.
  *
- * Demonstrates calling something outside Drupal and Drush via ProcessTrait. The
- * command path is read from $settings['deploy_steps_example_command']; the step
- * skips itself when that is unset or the file is missing, so enabling the module
- * never breaks a deploy on its own. ProcessTrait::processRun() runs the command
- * through Symfony's Process - streaming output and throwing on a non-zero exit
- * to abort the deploy.
+ * Demonstrates two capability traits at once: EnvironmentTrait to gate the step
+ * by environment, and ProcessTrait to call something outside Drupal and Drush.
+ * The step skips on the local environment, and when the command (read from
+ * $settings['deploy_steps_example_command']) is unset or missing - so enabling
+ * the module never breaks a deploy on its own. ProcessTrait::processRun() runs
+ * the command through Symfony's Process, streaming output and throwing on a
+ * non-zero exit to abort the deploy.
  */
 #[DeployStep(
   id: 'run_external_command',
@@ -27,14 +29,19 @@ use Drupal\deploy_steps\ProcessTrait;
   weight: 30,
   phase: DeployStepInterface::PHASE_POST,
 )]
-class RunExternalCommand extends DeployStepBase {
+class RunExternalCommandDeployStep extends DeployStepBase {
 
+  use EnvironmentTrait;
   use ProcessTrait;
 
   /**
    * {@inheritdoc}
    */
   public function skip(): ?string {
+    if ($this->environment() === 'local') {
+      return 'local environment';
+    }
+
     $command = $this->commandPath();
 
     if ($command === '') {

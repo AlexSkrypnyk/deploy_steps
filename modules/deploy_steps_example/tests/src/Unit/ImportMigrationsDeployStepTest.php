@@ -2,29 +2,27 @@
 
 declare(strict_types=1);
 
-namespace Drupal\Tests\deploy_steps_example_advanced\Unit;
+namespace Drupal\Tests\deploy_steps_example\Unit;
 
 use Drupal\Core\Extension\ModuleHandlerInterface;
-use Drupal\deploy_steps_example_advanced\Plugin\DeployStep\ImportMigrations;
-use Drupal\Tests\UnitTestCase;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\deploy_steps_example\Plugin\DeployStep\ImportMigrationsDeployStep;
 
 /**
- * Tests the ImportMigrations example deploy step.
+ * Tests the ImportMigrationsDeployStep example deploy step.
  *
  * The pattern to copy for a step that redispatches a Drush command: mock drush()
  * so no real Drush runs, then assert the command the step would redispatch.
  *
  * @group DeployStep
  */
-class ImportMigrationsTest extends UnitTestCase {
+class ImportMigrationsDeployStepTest extends DeployStepUnitTestBase {
 
   /**
    * Tests that run() redispatches the migrate:import command.
    */
   public function testRun(): void {
-    $step = $this->getMockBuilder(ImportMigrations::class)
-      ->setConstructorArgs([[], 'import_migrations', [], $this->createMock(ModuleHandlerInterface::class)])
+    $step = $this->getMockBuilder(ImportMigrationsDeployStep::class)
+      ->setConstructorArgs([[], 'import_migrations', []])
       ->onlyMethods(['drush'])
       ->getMock();
     $step->expects($this->once())
@@ -43,7 +41,7 @@ class ImportMigrationsTest extends UnitTestCase {
     $module_handler = $this->createMock(ModuleHandlerInterface::class);
     $module_handler->method('moduleExists')->with('migrate_tools')->willReturn($enabled);
 
-    $step = new ImportMigrations([], 'import_migrations', [], $module_handler);
+    $step = ImportMigrationsDeployStep::create($this->container(['module_handler' => $module_handler]), [], 'import_migrations', []);
 
     $this->assertSame($expected, $step->skip());
   }
@@ -54,16 +52,6 @@ class ImportMigrationsTest extends UnitTestCase {
   public static function dataProviderSkip(): \Iterator {
     yield 'enabled' => [TRUE, NULL];
     yield 'not enabled' => [FALSE, 'migrate_tools module is not enabled'];
-  }
-
-  /**
-   * Tests that create() injects the module handler from the container.
-   */
-  public function testCreate(): void {
-    $container = $this->createMock(ContainerInterface::class);
-    $container->method('get')->with('module_handler')->willReturn($this->createMock(ModuleHandlerInterface::class));
-
-    $this->assertInstanceOf(ImportMigrations::class, ImportMigrations::create($container, [], 'import_migrations', []));
   }
 
 }
