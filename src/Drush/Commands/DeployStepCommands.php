@@ -19,8 +19,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * hook_deploy_NAME()) are recorded as completed and never run again, so they
  * cannot express "run on every deploy". This command provides that missing
  * layer: it discovers every DeployStep plugin from every enabled module,
- * groups them by phase, orders each phase by weight, asks each plugin's gate
- * whether to run, and runs the rest - on every single deploy. Pre-phase
+ * groups them by phase, orders each phase by weight, checks each plugin's skip
+ * reason, and runs the rest - on every single deploy. Pre-phase
  * plugins run before the `deploy:hook` body, post-phase plugins after it.
  *
  * The design inverts the naive "one Drush command hook per module" approach,

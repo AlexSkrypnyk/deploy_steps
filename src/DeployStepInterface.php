@@ -11,8 +11,8 @@ use Drupal\Component\Plugin\PluginInspectionInterface;
  *
  * A deploy step plugin is a unit of idempotent, repeatable work that runs on
  * every `drush deploy:hook`, in every environment. The runner groups plugins by
- * phase (pre/post), orders each phase by weight, calls ::gate() to decide
- * whether each plugin runs, and calls ::run() for the ones whose gate is open.
+ * phase (pre/post), orders each phase by weight, calls ::skip() to decide
+ * whether each plugin runs, and calls ::run() for the ones that should run.
  *
  * This is the repeatable counterpart to run-once hook_deploy_NAME(): a plugin
  * runs on every deploy, so it must be idempotent.
@@ -30,18 +30,18 @@ interface DeployStepInterface extends PluginInspectionInterface {
   public const PHASE_POST = 'post';
 
   /**
-   * Decides whether this step should run on the current deploy.
+   * Returns the reason to skip this step, or NULL to run it.
    *
-   * The gate is where a step expresses its conditions - typically the
-   * environment, a feature flag, or the presence of data. Returning a reason
-   * (rather than a bare boolean) means every skip is explicit and explained in
-   * the deploy log instead of silently vanishing.
+   * This is where a step expresses its conditions - typically the environment,
+   * a feature flag, or the presence of data. Returning a reason (rather than a
+   * bare boolean) means every skip is explicit and explained in the deploy log
+   * instead of silently vanishing.
    *
    * @return string|null
    *   NULL to run the step, or a short human-readable reason to skip it (logged
    *   verbatim, e.g. "production environment" or "migration source DB absent").
    */
-  public function gate(): ?string;
+  public function skip(): ?string;
 
   /**
    * Runs the step.

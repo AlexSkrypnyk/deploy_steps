@@ -32,7 +32,7 @@ Runs repeatable, run-on-every-deploy logic as discoverable **deploy step** plugi
 
 Drupal and Drush run-once hooks (`hook_update_N()`, `hook_post_update_NAME()`, `hook_deploy_NAME()`) are recorded as completed and never run again - they cannot express "run on every deploy". This module provides that missing layer: the repeatable counterpart to run-once `hook_deploy_NAME()`.
 
-It owns the single pair of Drush `pre-command` / `post-command` hooks on `deploy:hook`, and on every deploy it **discovers** every `DeployStep` plugin from every enabled module, groups them by phase, orders each phase by weight, asks each plugin's gate whether to run, and runs the rest. Any enabled module contributes steps just by declaring a plugin - no Drush wiring of its own - which is what makes the mechanism reusable.
+It owns the single pair of Drush `pre-command` / `post-command` hooks on `deploy:hook`, and on every deploy it **discovers** every `DeployStep` plugin from every enabled module, groups them by phase, orders each phase by weight, checks each plugin's skip reason, and runs the rest. Any enabled module contributes steps just by declaring a plugin - no Drush wiring of its own - which is what makes the mechanism reusable.
 
 ## Requirements
 
@@ -80,7 +80,7 @@ use Drupal\deploy_steps\DeployStepInterface;
 final class RebuildSearchIndex extends DeployStepBase {
 
   // Return NULL to run, or a human-readable reason to skip (logged verbatim).
-  public function gate(): ?string {
+  public function skip(): ?string {
     return $this->isProduction() ? 'production environment' : NULL;
   }
 
@@ -93,7 +93,7 @@ final class RebuildSearchIndex extends DeployStepBase {
 
 - **`weight`** sets the run order within the phase (lower runs first).
 - **`phase`** chooses when the step runs: `PHASE_PRE` (before the `deploy:hook` body) or `PHASE_POST` (after it, the default).
-- **`gate()`** decides whether the step runs. Returning a *reason* instead of a bare boolean means every skip is explicit and explained in the deploy log. The inherited `environment()` / `isProduction()` helpers cover the common case.
+- **`skip()`** decides whether the step runs. Returning a *reason* instead of a bare boolean means every skip is explicit and explained in the deploy log. The inherited `environment()` / `isProduction()` helpers cover the common case.
 - **`run()`** is the step. It must be idempotent; throw to abort the deploy.
 - Inject services with `ContainerFactoryPluginInterface::create()`, like any Drupal plugin (see the `RecordEnvironment` example in the `deploy_steps_example` submodule).
 
@@ -113,11 +113,11 @@ Two optional submodules demonstrate the patterns - enable whichever you want to 
 
 `deploy_steps_example` ships a single `RecordEnvironment` step that records the current environment to State on every deploy. It is the minimal, safe demonstration of the pattern: dependency injection via `create()`, the `environment()` helper, and an idempotent `run()`.
 
-`deploy_steps_example_advanced` demonstrates real-world deploy work. Each step gates itself out when its prerequisite is missing, so enabling the module never breaks a deploy on its own:
+`deploy_steps_example_advanced` demonstrates real-world deploy work. Each step skips itself when its prerequisite is missing, so enabling the module never breaks a deploy on its own:
 
-- `ImportMigrations` redispatches `migrate:import --all --update` (gated on the `migrate_tools` module).
-- `ReindexSearchApi` redispatches `search-api:index` (gated on the `search_api` module).
-- `RunExternalScript` runs an external program via Symfony's `Process` (gated unless `$settings['deploy_steps_example_script']` points at an existing file).
+- `ImportMigrations` redispatches `migrate:import --all --update` (skipped unless the `migrate_tools` module is enabled).
+- `ReindexSearchApi` redispatches `search-api:index` (skipped unless the `search_api` module is enabled).
+- `RunExternalScript` runs an external program via Symfony's `Process` (skipped unless `$settings['deploy_steps_example_script']` points at an existing file).
 
 `ImportMigrations` and `ReindexSearchApi` show the bulk-work pattern - each redispatched command builds a Drupal batch that Drush processes across restarting subprocesses (see [Long-running and memory-bound work](#long-running-and-memory-bound-work) above). `ReindexSearchApi` uses `search_api`, listed under `suggest`. `ImportMigrations` uses `migrate_tools`, which needs `migrate_plus` to enable:
 

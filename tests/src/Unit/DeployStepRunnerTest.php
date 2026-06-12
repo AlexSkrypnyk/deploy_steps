@@ -18,21 +18,21 @@ use Psr\Log\LoggerInterface;
 class DeployStepRunnerTest extends UnitTestCase {
 
   /**
-   * Tests that open steps run and gated steps are skipped.
+   * Tests that steps without a skip reason run and steps with one are skipped.
    */
-  public function testRunsOpenStepsAndSkipsGatedSteps(): void {
-    $open = $this->createMock(DeployStepInterface::class);
-    $open->method('gate')->willReturn(NULL);
-    $open->method('label')->willReturn('open step');
-    $open->expects($this->once())->method('run');
+  public function testRunsStepsAndSkipsThoseWithReason(): void {
+    $running = $this->createMock(DeployStepInterface::class);
+    $running->method('skip')->willReturn(NULL);
+    $running->method('label')->willReturn('running step');
+    $running->expects($this->once())->method('run');
 
-    $gated = $this->createMock(DeployStepInterface::class);
-    $gated->method('gate')->willReturn('production environment');
-    $gated->method('label')->willReturn('gated step');
-    $gated->expects($this->never())->method('run');
+    $skipped = $this->createMock(DeployStepInterface::class);
+    $skipped->method('skip')->willReturn('production environment');
+    $skipped->method('label')->willReturn('skipped step');
+    $skipped->expects($this->never())->method('run');
 
     $manager = $this->createMock(DeployStepManager::class);
-    $manager->method('getSortedSteps')->willReturn(['open' => $open, 'gated' => $gated]);
+    $manager->method('getSortedSteps')->willReturn(['running' => $running, 'skipped' => $skipped]);
 
     $runner = new DeployStepRunner($manager, $this->createMock(LoggerInterface::class));
     $runner->run(DeployStepInterface::PHASE_POST);
@@ -43,7 +43,7 @@ class DeployStepRunnerTest extends UnitTestCase {
    */
   public function testStepFailureAborts(): void {
     $failing = $this->createMock(DeployStepInterface::class);
-    $failing->method('gate')->willReturn(NULL);
+    $failing->method('skip')->willReturn(NULL);
     $failing->method('label')->willReturn('failing step');
     $failing->method('run')->willThrowException(new \RuntimeException('Step failed.'));
 
@@ -63,12 +63,12 @@ class DeployStepRunnerTest extends UnitTestCase {
    */
   public function testRunsAllPhasesWhenNoPhaseGiven(): void {
     $pre = $this->createMock(DeployStepInterface::class);
-    $pre->method('gate')->willReturn(NULL);
+    $pre->method('skip')->willReturn(NULL);
     $pre->method('label')->willReturn('pre step');
     $pre->expects($this->once())->method('run');
 
     $post = $this->createMock(DeployStepInterface::class);
-    $post->method('gate')->willReturn(NULL);
+    $post->method('skip')->willReturn(NULL);
     $post->method('label')->willReturn('post step');
     $post->expects($this->once())->method('run');
 

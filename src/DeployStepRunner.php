@@ -10,7 +10,7 @@ use Psr\Log\LoggerInterface;
  * Runs deploy step plugins.
  *
  * The Drush command hooks on `deploy:hook` call this with a single phase each
- * (pre, then post), so the same gate and logging behaviour applies to every
+ * (pre, then post), so the same skip and logging behaviour applies to every
  * step on every deploy.
  */
 class DeployStepRunner {
@@ -51,7 +51,7 @@ class DeployStepRunner {
    */
   protected function runPhase(string $phase): void {
     foreach ($this->manager->getSortedSteps($phase) as $step) {
-      $skip_reason = $step->gate();
+      $skip_reason = $step->skip();
 
       if ($skip_reason !== NULL) {
         $this->logger->notice('Skipped deploy step "@label": @reason', [
