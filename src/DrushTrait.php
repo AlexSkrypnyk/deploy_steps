@@ -10,9 +10,8 @@ use Drush\Drush;
 /**
  * Redispatches a Drush sub-command in its own process.
  *
- * Opt-in capability for steps that run heavy or long-running Drush work. A step
- * composes it with `use DrushTrait;` and calls ::drush(); it is kept out of
- * DeployStepBase so only the steps that need it pull it in.
+ * Opt-in capability for steps that run heavy or long-running Drush work;
+ * compose it with `use DrushTrait;` and call ::drush().
  */
 trait DrushTrait {
 

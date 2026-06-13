@@ -8,10 +8,9 @@ namespace Drupal\deploy_steps;
  * Reads environment variables.
  *
  * Opt-in capability for steps configured by environment variables the deploy
- * pipeline exports. A step composes it with `use EnvTrait;` and calls ::env();
- * it is kept out of DeployStepBase so the helper is pulled in only where it is
- * needed. For the Drupal environment marker (local, prod, ...) read from
- * settings.php instead, use \Drupal\deploy_steps\EnvironmentTrait.
+ * pipeline exports; compose it with `use EnvTrait;` and call ::env(). For the
+ * Drupal environment marker (local, prod, ...) read from settings.php instead,
+ * use \Drupal\deploy_steps\EnvironmentTrait.
  */
 trait EnvTrait {
 

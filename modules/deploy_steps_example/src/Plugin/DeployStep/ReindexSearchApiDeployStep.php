@@ -40,8 +40,6 @@ class ReindexSearchApiDeployStep extends DeployStepBase {
    * {@inheritdoc}
    */
   public function run(): void {
-    // Index pending items into every index. Search API builds the batch and
-    // Drush re-spawns subprocesses to process it.
     $this->drush('search-api:index', [], ['batch-size' => 100]);
   }
 

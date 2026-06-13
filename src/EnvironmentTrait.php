@@ -9,10 +9,8 @@ use Drupal\Core\Site\Settings;
 /**
  * Reads the current environment machine name.
  *
- * Opt-in capability for steps whose skip condition depends on the environment.
- * A step composes it with `use EnvironmentTrait;` and calls ::environment(); it
- * is kept out of DeployStepBase so the helper is pulled in only where it is
- * needed.
+ * Opt-in capability for steps whose skip condition depends on the environment;
+ * compose it with `use EnvironmentTrait;` and call ::environment().
  */
 trait EnvironmentTrait {
 

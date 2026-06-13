@@ -9,10 +9,9 @@ use Symfony\Component\Process\Process;
 /**
  * Runs an external command in its own process.
  *
- * Opt-in capability for steps that shell out to a non-Drush program. A step
- * composes it with `use ExecTrait;` and calls ::exec(); it is kept out of
- * DeployStepBase so only the steps that need it pull it in. For redispatching a
- * Drush sub-command instead, use \Drupal\deploy_steps\DrushTrait.
+ * Opt-in capability for steps that shell out to a non-Drush program; compose it
+ * with `use ExecTrait;` and call ::exec(). For redispatching a Drush
+ * sub-command instead, use \Drupal\deploy_steps\DrushTrait.
  */
 trait ExecTrait {
 
@@ -59,8 +58,6 @@ trait ExecTrait {
     $process = new Process($command_line, NULL, $env, $input, $timeout);
     $process->setIdleTimeout($idle_timeout);
 
-    // Stream output to the deploy log; mustRun() throws on a non-zero exit and
-    // aborts the deploy.
     $process->mustRun(static function (string $type, string $buffer): void {
       echo $buffer;
     });

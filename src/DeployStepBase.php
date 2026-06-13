@@ -75,7 +75,6 @@ abstract class DeployStepBase extends PluginBase implements DeployStepInterface,
    * {@inheritdoc}
    */
   public function skip(): ?string {
-    // Run by default. Override to skip under specific conditions.
     return NULL;
   }
 
@@ -83,21 +82,39 @@ abstract class DeployStepBase extends PluginBase implements DeployStepInterface,
    * {@inheritdoc}
    */
   public function getWeight(): int {
-    return is_array($this->pluginDefinition) ? (int) ($this->pluginDefinition['weight'] ?? 0) : 0;
+    return (int) $this->definitionValue('weight', 0);
   }
 
   /**
    * {@inheritdoc}
    */
   public function getPhase(): string {
-    return is_array($this->pluginDefinition) ? (string) ($this->pluginDefinition['phase'] ?? self::PHASE_POST) : self::PHASE_POST;
+    return (string) $this->definitionValue('phase', self::PHASE_POST);
   }
 
   /**
    * {@inheritdoc}
    */
   public function label(): string {
-    return is_array($this->pluginDefinition) ? (string) ($this->pluginDefinition['label'] ?? $this->getPluginId()) : $this->getPluginId();
+    return (string) $this->definitionValue('label', $this->getPluginId());
+  }
+
+  /**
+   * Reads a value from the plugin definition, falling back to a default.
+   *
+   * The plugin definition is an array for discovered plugins but may be an
+   * object for other plugin types, so the array access is guarded in one place.
+   *
+   * @param string $key
+   *   The plugin definition key to read.
+   * @param mixed $default
+   *   The value to return when the definition is not an array or lacks the key.
+   *
+   * @return mixed
+   *   The definition value, or the default.
+   */
+  protected function definitionValue(string $key, mixed $default): mixed {
+    return is_array($this->pluginDefinition) ? ($this->pluginDefinition[$key] ?? $default) : $default;
   }
 
 }

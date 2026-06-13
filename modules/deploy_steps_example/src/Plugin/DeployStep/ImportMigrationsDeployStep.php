@@ -62,7 +62,6 @@ class ImportMigrationsDeployStep extends DeployStepBase {
       $options['update'] = TRUE;
     }
 
-    // Drush builds and processes the batch across subprocesses.
     $this->drush('migrate:import', [], $options);
   }
 
