@@ -30,11 +30,11 @@ final class DeployStepCommands extends DrushCommands {
   /**
    * Constructs a DeployStepCommands object.
    *
-   * @param \Drupal\deploy_steps\DeployStepRunner $runner
+   * @param \Drupal\deploy_steps\DeployStepRunner $deployStepRunner
    *   The deploy step runner.
    */
   public function __construct(
-    protected readonly DeployStepRunner $runner,
+    protected readonly DeployStepRunner $deployStepRunner,
   ) {
     parent::__construct();
   }
@@ -62,7 +62,7 @@ final class DeployStepCommands extends DrushCommands {
    */
   #[CLI\Hook(type: HookManager::PRE_COMMAND_HOOK, target: 'deploy:hook')]
   public function runPreDeploySteps(CommandData $command_data): void {
-    $this->runner->run(DeployStepInterface::PHASE_PRE);
+    $this->deployStepRunner->run(DeployStepInterface::PHASE_PRE);
   }
 
   /**
@@ -77,7 +77,7 @@ final class DeployStepCommands extends DrushCommands {
    */
   #[CLI\Hook(type: HookManager::POST_COMMAND_HOOK, target: 'deploy:hook')]
   public function runPostDeploySteps(mixed $result, CommandData $command_data): void {
-    $this->runner->run(DeployStepInterface::PHASE_POST);
+    $this->deployStepRunner->run(DeployStepInterface::PHASE_POST);
   }
 
 }

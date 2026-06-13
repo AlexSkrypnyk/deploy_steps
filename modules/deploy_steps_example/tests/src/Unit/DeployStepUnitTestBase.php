@@ -34,9 +34,7 @@ abstract class DeployStepUnitTestBase extends UnitTestCase {
     ];
 
     $container = $this->createMock(ContainerInterface::class);
-    $container->method('get')->willReturnCallback(function (string $id) use ($services): object {
-      return $services[$id];
-    });
+    $container->method('get')->willReturnCallback(fn(string $id): object => $services[$id]);
 
     return $container;
   }
