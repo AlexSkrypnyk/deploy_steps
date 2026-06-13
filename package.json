@@ -5,7 +5,7 @@
   "license": "GPL-2.0-or-later",
   "contributors": [],
   "scripts": {
-    "lint-spell": "cspell --no-progress --gitignore .",
+    "lint-spell": "cspell --no-progress",
     "build": "echo Would run build"
   },
   "engines": {

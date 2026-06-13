@@ -1,4 +1,7 @@
 {
+    "files": [
+        "**"
+    ],
     "dictionaries": [
         "bash",
         "misc",
@@ -73,6 +76,7 @@
         "reindex",
         "renovatebot",
         "ruleset",
+        "sarif",
         "shivammathur",
         "simpletest",
         "skrypnyk",
@@ -90,7 +94,9 @@
         "vfsstream",
         "vincentlanglet",
         "webroot",
-        "yoyodyne"
+        "yoyodyne",
+        "zizmor",
+        "zizmorcore"
     ],
     "ignorePaths": [
         ".git/",
