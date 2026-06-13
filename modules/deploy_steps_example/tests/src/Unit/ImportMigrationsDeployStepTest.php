@@ -24,6 +24,11 @@ class ImportMigrationsDeployStepTest extends DeployStepUnitTestBase {
    * @dataProvider dataProviderRun
    */
   public function testRun(array $environment, array $expected_options): void {
+    // Isolate from any ambient DRUPAL_MIGRATION_* values so the 'defaults'
+    // dataset reads the step's defaults, not the host environment.
+    putenv('DRUPAL_MIGRATION_IMPORT_LIMIT');
+    putenv('DRUPAL_MIGRATION_UPDATE');
+
     foreach ($environment as $name => $value) {
       putenv($name . '=' . $value);
     }
