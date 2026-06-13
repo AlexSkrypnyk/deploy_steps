@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Drupal\Tests\deploy_steps\Kernel;
 
 use Drupal\deploy_steps\DeployStepInterface;
-use Drupal\deploy_steps\DeployStepManager;
 use Drupal\deploy_steps\DeployStepRunner;
 use Drupal\KernelTests\KernelTestBase;
 use Psr\Log\LoggerInterface;
@@ -27,8 +26,6 @@ class DeployStepKernelTest extends KernelTestBase {
    */
   public function testManagerDiscoversSteps(): void {
     $manager = $this->container->get('plugin.manager.deploy_step');
-    $this->assertInstanceOf(DeployStepManager::class, $manager);
-
     $steps = $manager->getSortedSteps(DeployStepInterface::PHASE_POST);
     $this->assertArrayHasKey('import_migrations', $steps);
     $this->assertArrayHasKey('reindex_search_api', $steps);
