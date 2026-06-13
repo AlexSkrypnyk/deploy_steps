@@ -20,7 +20,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * services injected on every step - the module handler, state, entity type
  * manager, and config factory - so most steps need no create() of their own. A
  * step needing another service overrides ::create() and calls parent::create().
- * Specialised capabilities are opt-in traits a step composes with `use`:
+ * Specialized capabilities are opt-in traits a step composes with `use`:
  * \Drupal\deploy_steps\EnvironmentTrait for environment-conditional skips,
  * \Drupal\deploy_steps\EnvTrait for reading environment variables,
  * \Drupal\deploy_steps\DrushTrait for redispatching a Drush sub-command, and
@@ -61,6 +61,7 @@ abstract class DeployStepBase extends PluginBase implements DeployStepInterface,
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition): static {
+    // @phpstan-ignore new.static
     $instance = new static($configuration, $plugin_id, $plugin_definition);
     $instance->moduleHandler = $container->get('module_handler');
     $instance->state = $container->get('state');

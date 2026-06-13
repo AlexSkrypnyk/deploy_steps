@@ -10,8 +10,9 @@ use Drupal\deploy_steps_example\Plugin\DeployStep\ReindexSearchApiDeployStep;
 /**
  * Tests the ReindexSearchApiDeployStep example deploy step.
  *
- * The pattern to copy for a step that redispatches a Drush command: mock drush()
- * so no real Drush runs, then assert the command the step would redispatch.
+ * The pattern to copy for a step that redispatches a Drush command: mock
+ * drush() so no real Drush runs, then assert the command the step would
+ * redispatch.
  *
  * @group DeployStep
  */

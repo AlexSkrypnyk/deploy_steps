@@ -12,7 +12,7 @@ use Drupal\Tests\UnitTestCase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Base class for unit testing steps instantiated through DeployStepBase::create().
+ * Base class for unit testing steps built through DeployStepBase::create().
  */
 abstract class DeployStepUnitTestBase extends UnitTestCase {
 

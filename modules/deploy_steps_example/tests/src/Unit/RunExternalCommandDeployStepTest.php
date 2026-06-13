@@ -63,7 +63,8 @@ class RunExternalCommandDeployStepTest extends UnitTestCase {
    * {@inheritdoc}
    */
   protected function tearDown(): void {
-    // Reset the Settings singleton so command state does not leak between tests.
+    // Reset the Settings singleton so command state does not leak between
+    // tests.
     new Settings([]);
 
     parent::tearDown();

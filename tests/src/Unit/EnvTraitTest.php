@@ -35,7 +35,8 @@ class EnvTraitTest extends UnitTestCase {
   public static function dataProviderEnv(): \Iterator {
     yield 'set' => ['custom', 'fallback', 'custom'];
     yield 'unset returns default' => [NULL, 'fallback', 'fallback'];
-    // A variable set to an empty string is still set, so it wins over the default.
+    // A variable set to an empty string is still set, so it wins over the
+    // default.
     yield 'empty value is kept' => ['', 'fallback', ''];
   }
 

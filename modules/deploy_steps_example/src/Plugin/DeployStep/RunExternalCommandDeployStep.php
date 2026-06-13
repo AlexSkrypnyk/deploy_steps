@@ -20,8 +20,8 @@ use Drupal\deploy_steps\ExecTrait;
  * step skips on the local environment, and when the command (read from
  * $settings['deploy_steps_example_command']) is unset or missing - so enabling
  * the module never breaks a deploy on its own. ExecTrait::exec() runs the
- * command through Symfony's Process, streaming output and throwing on a non-zero
- * exit to abort the deploy.
+ * command through Symfony's Process, streaming output and throwing on a
+ * non-zero exit to abort the deploy.
  */
 #[DeployStep(
   id: 'run_external_command',
