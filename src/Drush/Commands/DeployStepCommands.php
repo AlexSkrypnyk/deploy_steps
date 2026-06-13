@@ -15,27 +15,15 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * Runs deploy step plugins around every `drush deploy:hook`.
  *
- * Drupal/Drush run-once hooks (hook_update_N(), hook_post_update_NAME() and
- * hook_deploy_NAME()) are recorded as completed and never run again, so they
- * cannot express "run on every deploy". This command provides that missing
- * layer: it discovers every DeployStep plugin from every enabled module,
- * groups them by phase, orders each phase by weight, checks each plugin's skip
- * reason, and runs the rest - on every single deploy. Pre-phase
- * plugins run before the `deploy:hook` body, post-phase plugins after it.
+ * Run-once hooks (hook_update_N(), hook_post_update_NAME(), hook_deploy_NAME())
+ * never run twice, so they cannot express "run on every deploy". This command
+ * fills that gap: deploy_steps owns the single pair of pre/post command hooks
+ * on `deploy:hook`, and on every deploy the runner discovers every DeployStep
+ * plugin from every enabled module, orders each phase by weight, and runs the
+ * open ones - pre-phase before the `deploy:hook` body, post-phase after it.
  *
- * The design inverts the naive "one Drush command hook per module" approach,
- * which does not scale: Drush discovers command hooks at bootstrap, so a
- * module could only contribute deploy logic by shipping its own DrushCommands
- * class AND being enabled before bootstrap. Here, deploy_steps owns the single
- * command hook and DISCOVERS plugins; any enabled module contributes steps by
- * declaring a DeployStep plugin - no Drush wiring of its own. That is what
- * makes the mechanism reusable.
- *
- * The hooks target `deploy:hook`, not the higher-level `deploy` command:
- * `deploy:hook` is the command a deploy pipeline runs in every environment to
- * apply pending database updates and configuration, so it is the right anchor
- * for repeatable per-deploy work. If a site's deploy pipeline does not call
- * `deploy:hook`, the steps do not fire.
+ * The README ("Why this module exists", "How it runs") covers the discovery
+ * design and why the anchor is `deploy:hook` rather than `deploy`.
  */
 final class DeployStepCommands extends DrushCommands {
 
