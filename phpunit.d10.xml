@@ -69,6 +69,7 @@
     <testsuites>
         <testsuite name="unit">
             <directory>web/modules/custom/*/tests/src/Unit</directory>
+            <directory>web/modules/custom/*/modules/*/tests/src/Unit</directory>
             <directory>web/themes/custom/*/tests/src/Unit</directory>
         </testsuite>
         <testsuite name="kernel">
@@ -98,6 +99,7 @@
 
         <exclude>
             <directory>web/modules/custom/*/tests</directory>
+            <directory>web/modules/custom/*/modules/*/tests</directory>
             <directory>web/themes/custom/*/tests</directory>
             <file>web/modules/custom/deploy_steps/rector.php</file>
             <file>web/themes/custom/deploy_steps/rector.php</file>

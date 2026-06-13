@@ -2,16 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Drupal\deploy_steps_example_advanced\Plugin\DeployStep;
+namespace Drupal\deploy_steps_example\Plugin\DeployStep;
 
-use Drupal\Core\Extension\ModuleHandlerInterface;
-use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\deploy_steps\Attribute\DeployStep;
 use Drupal\deploy_steps\DeployStepBase;
 use Drupal\deploy_steps\DeployStepInterface;
 use Drupal\deploy_steps\DrushTrait;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Indexes pending Search API items on every deploy via `search-api:index`.
@@ -27,37 +24,9 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
   weight: 20,
   phase: DeployStepInterface::PHASE_POST,
 )]
-final class ReindexSearchApi extends DeployStepBase implements ContainerFactoryPluginInterface {
+class ReindexSearchApiDeployStep extends DeployStepBase {
 
   use DrushTrait;
-
-  /**
-   * Constructs a ReindexSearchApi object.
-   *
-   * @param array $configuration
-   *   The plugin configuration.
-   * @param string $plugin_id
-   *   The plugin ID.
-   * @param mixed $plugin_definition
-   *   The plugin definition.
-   * @param \Drupal\Core\Extension\ModuleHandlerInterface $moduleHandler
-   *   The module handler.
-   */
-  public function __construct(
-    array $configuration,
-    string $plugin_id,
-    mixed $plugin_definition,
-    protected readonly ModuleHandlerInterface $moduleHandler,
-  ) {
-    parent::__construct($configuration, $plugin_id, $plugin_definition);
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition): self {
-    return new self($configuration, $plugin_id, $plugin_definition, $container->get('module_handler'));
-  }
 
   /**
    * {@inheritdoc}
@@ -69,8 +38,6 @@ final class ReindexSearchApi extends DeployStepBase implements ContainerFactoryP
 
   /**
    * {@inheritdoc}
-   *
-   * @codeCoverageIgnore
    */
   public function run(): void {
     // Index pending items into every index. Search API builds the batch and

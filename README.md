@@ -47,7 +47,7 @@ composer require drupal/deploy_steps
 drush pm:install deploy_steps
 ```
 
-To enable the bundled example step (see below):
+To enable the bundled example steps (see below):
 
 ```bash
 drush pm:install deploy_steps_example
@@ -99,7 +99,7 @@ final class RebuildSearchIndex extends DeployStepBase {
 - **`phase`** chooses when the step runs: `PHASE_PRE` (before the `deploy:hook` body) or `PHASE_POST` (after it, the default).
 - **`skip()`** decides whether the step runs. Returning a *reason* instead of a bare boolean means every skip is explicit and explained in the deploy log. The `environment()` helper from `EnvironmentTrait` (composed with `use`) covers the common case - compare it to your environment marker, e.g. `=== 'prod'`.
 - **`run()`** is the step. It must be idempotent; throw to abort the deploy.
-- Inject services with `ContainerFactoryPluginInterface::create()`, like any Drupal plugin (see the `RecordEnvironment` example in the `deploy_steps_example` submodule).
+- Common services are injected on every step - use `$this->moduleHandler`, `$this->state`, `$this->entityTypeManager`, and `$this->configFactory` directly, no boilerplate. For any other service, override `create()`, call `parent::create()`, and assign it.
 
 A single module can declare as many steps as it needs - each is its own plugin with its own ID.
 
@@ -107,34 +107,53 @@ A single module can declare as many steps as it needs - each is its own plugin w
 
 `DrushTrait` provides a `drush()` helper for heavy work (migrations, source-DB import, bulk reindex); a step composes it with `use`. It runs the given Drush sub-command in its own process - a fresh memory ceiling and bootstrap, output streamed to the deploy log, no timeout, and a non-zero exit throws to abort the deploy. Commands that build a Drupal batch (`migrate:import`, `search-api:index`) are then processed by Drush across subprocesses that restart as memory fills up, the same way a sandboxed `hook_update_N()` is re-entered.
 
+### Running an external command
+
+`ExecTrait` provides an `exec()` helper for shelling out to a non-Drush program; a step composes it with `use`. It runs the command through Symfony's `Process` - streaming output to the deploy log, and throwing on a non-zero exit to abort the deploy. The signature is `exec(string $command, array $arguments = [], array $inputs = [], array $env = [], int $timeout = 60, int $idle_timeout = 30)`; pass `0` for either timeout to disable it on long-running work.
+
 ### The environment convention
 
 `environment()` reads `$settings['environment']` (set in `settings.php`); it lives in `EnvironmentTrait`, which a step composes with `use`. Compare it against your environment marker - e.g. `$this->environment() === 'prod'` - to gate a step. The module does not hardcode any project-specific environment names.
 
-## Example submodules
+### Reading environment variables
 
-Two optional submodules demonstrate the patterns - enable whichever you want to study, then model your own steps on them.
+`EnvTrait` provides an `env($name, $default)` helper for steps configured by environment variables the deploy pipeline exports; a step composes it with `use`. `ImportMigrationsDeployStep` reads `DRUPAL_MIGRATION_*` variables this way to skip itself and shape the import. This is distinct from `environment()` above - that reads the Drupal environment marker from `settings.php`, while `env()` reads a raw shell environment variable.
 
-`deploy_steps_example` ships a single `RecordEnvironment` step that records the current environment to State on every deploy. It is the minimal, safe demonstration of the pattern: dependency injection via `create()`, the `environment()` helper, and an idempotent `run()`.
+### Testing a deploy step
 
-`deploy_steps_example_advanced` demonstrates real-world deploy work. Each step skips itself when its prerequisite is missing, so enabling the module never breaks a deploy on its own:
+A step that calls `drush()` or `exec()` can be unit tested without a real Drush or process: mock that one method on the step (declare the step non-`final` so it can be mocked) and assert the command it would run.
 
-- `ImportMigrations` redispatches `migrate:import --all --update` (skipped unless the `migrate_tools` module is enabled).
-- `ReindexSearchApi` redispatches `search-api:index` (skipped unless the `search_api` module is enabled).
-- `RunExternalScript` runs an external program via Symfony's `Process` (skipped unless `$settings['deploy_steps_example_script']` points at an existing file).
+```php
+$step = $this->getMockBuilder(RunExternalCommandDeployStep::class)
+  ->setConstructorArgs([[], 'run_external_command', []])
+  ->onlyMethods(['exec'])
+  ->getMock();
+$step->expects($this->once())->method('exec')->with('/path/to/script');
+$step->run();
+```
 
-`ImportMigrations` and `ReindexSearchApi` show the bulk-work pattern - each redispatched command builds a Drupal batch that Drush processes across restarting subprocesses (see [Long-running and memory-bound work](#long-running-and-memory-bound-work) above). `ReindexSearchApi` uses `search_api`, listed under `suggest`. `ImportMigrations` uses `migrate_tools`, which needs `migrate_plus` to enable:
+The `deploy_steps_example` submodule ships a unit test for each of its steps - `ImportMigrationsDeployStepTest`, `ReindexSearchApiDeployStepTest`, and `RunExternalCommandDeployStepTest` - as patterns to copy.
+
+## Example submodule
+
+The optional `deploy_steps_example` submodule demonstrates the patterns - enable it to study, then model your own steps and their unit tests on its three steps. Each step skips itself when its prerequisite is missing, so enabling the module never breaks a deploy on its own:
+
+- `ImportMigrationsDeployStep` redispatches `migrate:import`, shaped by `DRUPAL_MIGRATION_*` environment variables the deploy pipeline exports (skipped via `DRUPAL_MIGRATION_SKIP=1`, or when the `migrate_tools` module is absent).
+- `ReindexSearchApiDeployStep` redispatches `search-api:index` (skipped unless the `search_api` module is enabled).
+- `RunExternalCommandDeployStep` runs an external program via `ExecTrait`, and gates itself on the environment via `EnvironmentTrait` (skipped on the `local` environment, or when `$settings['deploy_steps_example_command']` is unset or missing).
+
+`ImportMigrationsDeployStep` and `ReindexSearchApiDeployStep` show the bulk-work pattern - each redispatched command builds a Drupal batch that Drush processes across restarting subprocesses (see [Long-running and memory-bound work](#long-running-and-memory-bound-work) above). `ReindexSearchApiDeployStep` uses `search_api`, listed under `suggest`. `ImportMigrationsDeployStep` uses `migrate_tools`, which needs `migrate_plus` to enable:
 
 ```bash
 composer require drupal/search_api
 composer require drupal/migrate_tools drupal/migrate_plus
 ```
 
-`RunExternalScript` shells out to a non-Drush program with Symfony's `Process` (preferred over raw `exec()`/`shell_exec()` because it streams output and throws on a non-zero exit). Point the setting at an executable to enable it:
+`RunExternalCommandDeployStep` shells out to a non-Drush program with `ExecTrait` (preferred over a raw `shell_exec()` because it streams output and throws on a non-zero exit). Point the setting at an executable to enable it:
 
 ```php
 // settings.php
-$settings['deploy_steps_example_script'] = '/path/to/post-deploy.sh';
+$settings['deploy_steps_example_command'] = '/path/to/post-deploy.sh';
 ```
 
 ## Local development
