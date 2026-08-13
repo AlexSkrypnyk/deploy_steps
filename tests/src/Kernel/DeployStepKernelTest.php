@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Drupal\Tests\deploy_steps\Kernel;
 
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use Drupal\deploy_steps\DeployStepInterface;
 use Drupal\deploy_steps\DeployStepRunner;
 use Drupal\KernelTests\KernelTestBase;
@@ -14,6 +16,8 @@ use Psr\Log\LoggerInterface;
  *
  * @group DeployStep
  */
+#[Group('DeployStep')]
+#[RunTestsInSeparateProcesses]
 class DeployStepKernelTest extends KernelTestBase {
 
   /**

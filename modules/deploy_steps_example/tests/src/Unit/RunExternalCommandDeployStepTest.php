@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Drupal\Tests\deploy_steps_example\Unit;
 
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Drupal\Core\Site\Settings;
 use Drupal\deploy_steps_example\Plugin\DeployStep\RunExternalCommandDeployStep;
 use Drupal\Tests\UnitTestCase;
@@ -16,6 +18,7 @@ use Drupal\Tests\UnitTestCase;
  *
  * @group DeployStep
  */
+#[Group('DeployStep')]
 class RunExternalCommandDeployStepTest extends UnitTestCase {
 
   /**
@@ -40,6 +43,7 @@ class RunExternalCommandDeployStepTest extends UnitTestCase {
    *
    * @dataProvider dataProviderSkip
    */
+  #[DataProvider('dataProviderSkip')]
   public function testSkip(string $environment, string $command, ?string $expected): void {
     new Settings(['environment' => $environment, 'deploy_steps_example_command' => $command]);
     $step = new RunExternalCommandDeployStep([], 'run_external_command', []);

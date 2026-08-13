@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Drupal\Tests\deploy_steps\Unit;
 
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Drupal\deploy_steps\EnvTrait;
 use Drupal\Tests\UnitTestCase;
 
@@ -12,6 +14,7 @@ use Drupal\Tests\UnitTestCase;
  *
  * @group DeployStep
  */
+#[Group('DeployStep')]
 class EnvTraitTest extends UnitTestCase {
 
   /**
@@ -19,6 +22,7 @@ class EnvTraitTest extends UnitTestCase {
    *
    * @dataProvider dataProviderEnv
    */
+  #[DataProvider('dataProviderEnv')]
   public function testEnv(?string $value, string $default, string $expected): void {
     if ($value !== NULL) {
       putenv('DEPLOY_STEPS_TEST_VAR=' . $value);

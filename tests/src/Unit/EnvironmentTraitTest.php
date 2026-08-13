@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Drupal\Tests\deploy_steps\Unit;
 
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Drupal\Core\Site\Settings;
 use Drupal\deploy_steps\EnvironmentTrait;
 use Drupal\Tests\UnitTestCase;
@@ -13,6 +15,7 @@ use Drupal\Tests\UnitTestCase;
  *
  * @group DeployStep
  */
+#[Group('DeployStep')]
 class EnvironmentTraitTest extends UnitTestCase {
 
   /**
@@ -20,6 +23,7 @@ class EnvironmentTraitTest extends UnitTestCase {
    *
    * @dataProvider dataProviderEnvironment
    */
+  #[DataProvider('dataProviderEnvironment')]
   public function testEnvironment(string $value): void {
     new Settings(['environment' => $value]);
     $host = $this->createHost();
