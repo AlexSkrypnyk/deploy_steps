@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Drupal\Tests\deploy_steps_example\Unit;
 
-use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\Attributes\DataProvider;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\deploy_steps_example\Plugin\DeployStep\ImportMigrationsDeployStep;
 
@@ -18,7 +16,6 @@ use Drupal\deploy_steps_example\Plugin\DeployStep\ImportMigrationsDeployStep;
  *
  * @group DeployStep
  */
-#[Group('DeployStep')]
 class ImportMigrationsDeployStepTest extends DeployStepUnitTestBase {
 
   /**
@@ -26,7 +23,6 @@ class ImportMigrationsDeployStepTest extends DeployStepUnitTestBase {
    *
    * @dataProvider dataProviderRun
    */
-  #[DataProvider('dataProviderRun')]
   public function testRun(array $environment, array $expected_options): void {
     // Isolate from any ambient DRUPAL_MIGRATION_* values so the 'defaults'
     // dataset reads the step's defaults, not the host environment.
@@ -65,7 +61,6 @@ class ImportMigrationsDeployStepTest extends DeployStepUnitTestBase {
    *
    * @dataProvider dataProviderSkip
    */
-  #[DataProvider('dataProviderSkip')]
   public function testSkip(string $migration_skip, bool $module_enabled, ?string $expected): void {
     putenv('DRUPAL_MIGRATION_SKIP=' . $migration_skip);
 

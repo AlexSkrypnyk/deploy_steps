@@ -17,6 +17,8 @@
 declare(strict_types=1);
 
 use DrupalFinder\DrupalFinderComposerRuntime;
+use DrupalRector\Rector\PHPUnit\PhpUnitAddRunTestsInSeparateProcessesAttributeRector;
+use DrupalRector\Rector\PHPUnit\PhpUnitTestAnnotationToAttributeRector;
 use DrupalRector\Set\DrupalSetProvider;
 use Rector\CodeQuality\Rector\Class_\CompleteDynamicPropertiesRector;
 use Rector\CodeQuality\Rector\ClassMethod\InlineArrayReturnAssignRector;
@@ -62,6 +64,17 @@ return RectorConfig::configure()
     InlineArrayReturnAssignRector::class,
     NewlineAfterStatementRector::class,
     NewlineBeforeNewAssignSetRector::class,
+    // PHPUnit metadata stays in doc-comments. These rules rewrite `@group`,
+    // `@dataProvider` and `@runTestsInSeparateProcesses` into
+    // `PHPUnit\Framework\Attributes\*` attributes, but those classes only
+    // exist from PHPUnit 10, and Drupal 10 builds resolve PHPUnit 9.
+    // Converting would leave the Drupal 10 static analysis run resolving
+    // attribute classes that are not installed. Like
+    // `AddOverrideAttributeToOverriddenMethodsRector` above, the rules are
+    // registered on only one side of the version split and are reported as
+    // unused on the other, so both entries stay listed to cover both.
+    PhpUnitAddRunTestsInSeparateProcessesAttributeRector::class,
+    PhpUnitTestAnnotationToAttributeRector::class,
     PrivatizeFinalClassMethodRector::class,
     PrivatizeFinalClassPropertyRector::class,
     PrivatizeLocalGetterToPropertyRector::class,

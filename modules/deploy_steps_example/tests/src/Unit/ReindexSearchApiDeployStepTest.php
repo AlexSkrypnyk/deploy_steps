@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Drupal\Tests\deploy_steps_example\Unit;
 
-use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\Attributes\DataProvider;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\deploy_steps_example\Plugin\DeployStep\ReindexSearchApiDeployStep;
 
@@ -18,7 +16,6 @@ use Drupal\deploy_steps_example\Plugin\DeployStep\ReindexSearchApiDeployStep;
  *
  * @group DeployStep
  */
-#[Group('DeployStep')]
 class ReindexSearchApiDeployStepTest extends DeployStepUnitTestBase {
 
   /**
@@ -41,7 +38,6 @@ class ReindexSearchApiDeployStepTest extends DeployStepUnitTestBase {
    *
    * @dataProvider dataProviderSkip
    */
-  #[DataProvider('dataProviderSkip')]
   public function testSkip(bool $enabled, ?string $expected): void {
     $module_handler = $this->createMock(ModuleHandlerInterface::class);
     $module_handler->method('moduleExists')->with('search_api')->willReturn($enabled);

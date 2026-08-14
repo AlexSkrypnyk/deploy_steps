@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Drupal\Tests\deploy_steps\Unit;
 
-use PHPUnit\Framework\Attributes\Group;
 use Drupal\deploy_steps\DeployStepInterface;
 use Drupal\deploy_steps\DeployStepManager;
 use Drupal\deploy_steps\DeployStepRunner;
@@ -16,7 +15,6 @@ use Psr\Log\LoggerInterface;
  *
  * @group DeployStep
  */
-#[Group('DeployStep')]
 class DeployStepRunnerTest extends UnitTestCase {
 
   /**

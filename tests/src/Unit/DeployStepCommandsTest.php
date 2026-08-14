@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Drupal\Tests\deploy_steps\Unit;
 
-use PHPUnit\Framework\Attributes\Group;
 use Consolidation\AnnotatedCommand\CommandData;
 use Drupal\deploy_steps\Drush\Commands\DeployStepCommands;
 use Drupal\deploy_steps\DeployStepInterface;
@@ -16,7 +15,6 @@ use Drupal\Tests\UnitTestCase;
  *
  * @group DeployStep
  */
-#[Group('DeployStep')]
 class DeployStepCommandsTest extends UnitTestCase {
 
   /**
