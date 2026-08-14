@@ -17,15 +17,12 @@
 declare(strict_types=1);
 
 use DrupalFinder\DrupalFinderComposerRuntime;
-use DrupalRector\Set\Drupal10SetList;
-use DrupalRector\Set\Drupal11SetList;
-use DrupalRector\Set\Drupal9SetList;
+use DrupalRector\Set\DrupalSetProvider;
 use Rector\CodeQuality\Rector\Class_\CompleteDynamicPropertiesRector;
 use Rector\CodeQuality\Rector\ClassMethod\InlineArrayReturnAssignRector;
 use Rector\CodeQuality\Rector\Empty_\SimplifyEmptyCheckOnEmptyArrayRector;
 use Rector\CodingStyle\Rector\Catch_\CatchExceptionNameMatchingTypeRector;
 use Rector\CodingStyle\Rector\ClassMethod\NewlineBeforeNewAssignSetRector;
-use Rector\CodingStyle\Rector\FuncCall\CountArrayToEmptyArrayComparisonRector;
 use Rector\CodingStyle\Rector\Stmt\NewlineAfterStatementRector;
 use Rector\Config\RectorConfig;
 use Rector\DeadCode\Rector\If_\RemoveAlwaysTrueIfConditionRector;
@@ -39,7 +36,6 @@ use Rector\Php80\Rector\Switch_\ChangeSwitchToMatchRector;
 use Rector\Privatization\Rector\ClassMethod\PrivatizeFinalClassMethodRector;
 use Rector\Privatization\Rector\MethodCall\PrivatizeLocalGetterToPropertyRector;
 use Rector\Privatization\Rector\Property\PrivatizeFinalClassPropertyRector;
-use Rector\Strict\Rector\Empty_\DisallowedEmptyRuleFixerRector;
 use Rector\TypeDeclaration\Rector\StmtsAwareInterface\DeclareStrictTypesRector;
 
 return RectorConfig::configure()
@@ -48,8 +44,6 @@ return RectorConfig::configure()
     CatchExceptionNameMatchingTypeRector::class,
     ChangeSwitchToMatchRector::class,
     CompleteDynamicPropertiesRector::class,
-    CountArrayToEmptyArrayComparisonRector::class,
-    DisallowedEmptyRuleFixerRector::class,
     InlineArrayReturnAssignRector::class,
     NewlineAfterStatementRector::class,
     NewlineBeforeNewAssignSetRector::class,
@@ -79,12 +73,13 @@ return RectorConfig::configure()
     privatization: TRUE,
     naming: TRUE,
   )
-  // Drupal-specific deprecation fixes.
-  ->withSets([
-    Drupal9SetList::DRUPAL_9,
-    Drupal10SetList::DRUPAL_10,
-    Drupal11SetList::DRUPAL_11,
-  ])
+  // Drupal-specific deprecation fixes. The set provider binds each set to a
+  // drupal/core version and loads only the sets that the installed core
+  // satisfies, so the rules follow the version the extension is built
+  // against. Both calls are required: the provider supplies the sets and
+  // withComposerBased() enables the group.
+  ->withSetProviders(DrupalSetProvider::class)
+  ->withComposerBased(drupal: TRUE)
   // Additional rules.
   ->withRules([
     DeclareStrictTypesRector::class,
