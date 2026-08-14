@@ -18,6 +18,6 @@ By default the scripts print only their own `[TASK]`/`[ OK ]` progress and suppr
 
 ## Custom scripts
 
-`assemble` and `provision` both look for `scripts/<prefix>-*.sh` in the project root and run any matches at the end of the phase. `assemble-*.sh` for post-assemble, `provision-*.sh` for post-provision. Scripts run in lexicographic order, inherit the parent environment, and a non-zero exit aborts the parent. See the "Custom assemble and provision scripts" section in the root `README.md` for the full convention.
+`assemble`, `provision`, `start` and `stop` each look for `scripts/<prefix>-*.sh` in the project root and run any matches during the phase: `assemble-*.sh` post-assemble, `provision-*.sh` post-provision, `start-*.sh` post-start, and `stop-*.sh` pre-stop. Scripts run in lexicographic order, inherit the parent environment, and a non-zero exit aborts the parent.
 
 See the root `README.md` for higher-level workflow documentation.

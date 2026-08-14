@@ -157,10 +157,7 @@ ahoy test-unit tests/src/Unit/MyUnitTest.php
 ahoy test-unit -- --group=wip
 ```
 
-You may also run tests using the `phpunit` command directly:
-
-```bash
-cd build
-php -d pcov.directory=.. vendor/bin/phpunit tests/src/Unit/MyUnitTest.php
-php -d pcov.directory=.. vendor/bin/phpunit --group=wip
-```
+Always run tests through the `make test-*` or `ahoy test-*` wrappers above. They
+run PHPUnit from within `build/` with the configuration, plugins and environment
+that CI uses, so a direct `vendor/bin/phpunit` call can pass locally while CI
+fails.
