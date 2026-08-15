@@ -17,7 +17,7 @@
         "source": "https://git.drupalcode.org/project/deploy_steps"
     },
     "require": {
-        "php": ">=8.2",
+        "php": ">=8.3",
         "drush/drush": "^12.5 || ^13"
     },
     "suggest": {
