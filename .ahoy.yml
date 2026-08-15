@@ -47,11 +47,14 @@ commands:
 
   drush:
     usage: Run Drush command.
-    cmd: build/vendor/bin/drush -l http://${WEBSERVER_HOST:-localhost}:${WEBSERVER_PORT:-8000} $*
+    cmd: build/vendor/bin/drush -l "$(./.devtools/info site-url)" $*
 
   login:
     usage: Login to a website.
-    cmd: ahoy drush uli
+    cmd: |
+      url="$(build/vendor/bin/drush -l "$(./.devtools/info site-url)" uli)"
+      printf '%s\n' "$url"
+      ./.devtools/qrcode "$url"
 
   lint:
     usage: Check coding standards for violations.
@@ -83,7 +86,7 @@ commands:
       popd >/dev/null || exit 1
 
   test:
-    usage: Run tests.
+    usage: Run all tests.
     cmd: |
       pushd "build" >/dev/null || exit 1
       ahoy title "Running PHPUnit"
@@ -138,7 +141,7 @@ entrypoint:
     # build) still find it. No-op when unset or already absolute.
     if [ -n "${TMPDIR:-}" ]; then case "$TMPDIR" in /*) ;; *) TMPDIR="$PWD/$TMPDIR" ;; esac; mkdir -p "$TMPDIR"; export TMPDIR; fi
     extension="$(basename -s .info.yml -- ./*.info.yml)"
-    export BROWSERTEST_OUTPUT_DIRECTORY="${TMPDIR:-/tmp}"
+    export BROWSERTEST_OUTPUT_DIRECTORY="$PWD/.logs/browser_output"
     export SIMPLETEST_BASE_URL=http://${WEBSERVER_HOST:-localhost}:${WEBSERVER_PORT:-8000}
     export SIMPLETEST_DB=sqlite://localhost/drupal_test_${extension}.sqlite
     bash -e -c "$0" "$@"

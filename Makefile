@@ -14,34 +14,53 @@ endif
 WEBSERVER_HOST ?= localhost
 WEBSERVER_PORT ?= 8000
 
+# Resolve the site URL through the shared `.devtools/info` resolver so `drush`
+# and `login` report the same tunnel-aware URL as start, provision, and info
+# (see resolve_site_url()). Lazy `=` so the probe runs only when drush/login
+# are invoked.
+DRUSH_URI = $(shell ./.devtools/info site-url)
+
+# Test environment exported to every recipe (see the blanket `export` above),
+# matching what the ahoy entrypoint exports for every command, so `make
+# test*` runs against the same base URL, database, and browser-output
+# directory as `ahoy test*`.
+EXTENSION_NAME = $(shell basename -s .info.yml -- ./*.info.yml)
+SIMPLETEST_BASE_URL = http://$(WEBSERVER_HOST):$(WEBSERVER_PORT)
+SIMPLETEST_DB = sqlite://localhost/drupal_test_$(EXTENSION_NAME).sqlite
+BROWSERTEST_OUTPUT_DIRECTORY = $(CURDIR)/.logs/browser_output
+
 define title
 	@echo -e "\n\033[36m$(1)\033[0m"
 endef
 
-.PHONY: assemble build debug debug-off debug-on delete describe destroy help info lint lint-fix login provision reset start stop test xdebug xdebug-off xdebug-on
+.PHONY: assemble build debug debug-off debug-on delete describe destroy drush help info lint lint-fix login provision reset start stop test xdebug xdebug-off xdebug-on
 .PHONY: test-unit test-kernel test-functional
 
 help:
 	@echo "COMMANDS"
 	@echo "========"
-	@echo "build           - Build or rebuild the project."
-	@echo "assemble        - Assemble a codebase using project code and all required dependencies."
-	@echo "debug           - Enable PHP XDebug step-debugging for the development server."
-	@echo "drush           - Run Drush command."
-	@echo "info            - Print a read-only summary of the current environment (alias: describe)."
-	@echo "lint            - Check coding standards for violations."
-	@echo "lint-fix        - Fix violations in coding standards."
-	@echo "login           - Run Drush login command."
-	@echo "provision       - Provision application within assembled codebase."
-	@echo "reset           - Reset project to the default state (aliases: delete, destroy)."
-	@echo "start           - Start development environment."
-	@echo "stop            - Stop development environment."
+	@echo "build                      - Build or rebuild the project."
+	@echo "assemble                   - Assemble a codebase using project code and all required dependencies."
+	@echo "debug                      - Enable PHP XDebug step-debugging for the development server (aliases: debug-on, xdebug, xdebug-on)."
+	@echo "drush                      - Run Drush command."
+	@echo "info                       - Print a read-only summary of the current environment (alias: describe)."
+	@echo "lint                       - Check coding standards for violations."
+	@echo "lint-fix                   - Fix violations in coding standards."
+	@echo "login                      - Login to a website."
+	@echo "provision                  - Provision application within assembled codebase."
+	@echo "reset                      - Reset project to the default state (aliases: delete, destroy)."
+	@echo "start                      - Start development environment (aliases: debug-off, xdebug-off)."
+	@echo "stop                       - Stop development environment."
 	@echo "test                       - Run all tests."
 	@echo "test-functional            - Run functional tests."
 	@echo "test-kernel                - Run kernel tests."
 	@echo "test-unit                  - Run unit tests."
 
-build: stop assemble start provision
+build:
+	@$(MAKE) stop >/dev/null 2>&1 || true
+	$(MAKE) assemble
+	$(MAKE) start
+	$(MAKE) provision
 
 assemble:
 	./.devtools/assemble
@@ -86,10 +105,10 @@ ifeq (drush,$(firstword $(MAKECMDGOALS)))
 endif
 
 drush:
-	build/vendor/bin/drush -l http://$(WEBSERVER_HOST):$(WEBSERVER_PORT) $(DRUSH_RUN_ARGS)
+	build/vendor/bin/drush -l "$(DRUSH_URI)" $(DRUSH_RUN_ARGS)
 
 login:
-	build/vendor/bin/drush -l http://$(WEBSERVER_HOST):$(WEBSERVER_PORT) uli
+	@url="$$(build/vendor/bin/drush -l "$(DRUSH_URI)" uli)"; printf '%s\n' "$$url"; ./.devtools/qrcode "$$url"
 
 provision:
 	./.devtools/provision
@@ -115,23 +134,33 @@ lint-fix:
 	$(call title,Running Twig CS Fixer)
 	pushd "build" >/dev/null || exit 1 && vendor/bin/twig-cs-fixer --no-cache --fix && popd >/dev/null || exit 1
 
+# Allow passing extra args to phpunit test targets, mirroring the `drush`
+# arg-capture above. The target list is split across the same DEV_* markers
+# as the `.PHONY` declarations so a stripped feature leaves no dangling entry.
+TEST_TARGETS := test
+TEST_TARGETS += test-unit test-kernel test-functional
+ifneq (,$(filter $(firstword $(MAKECMDGOALS)),$(TEST_TARGETS)))
+  TEST_RUN_ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
+  $(eval $(TEST_RUN_ARGS):;@:)
+endif
+
 test:
 	$(call title,Running PHPUnit)
-	pushd "build" >/dev/null || exit 1 && BROWSERTEST_OUTPUT_DIRECTORY=/tmp php -d pcov.directory=.. vendor/bin/phpunit && popd >/dev/null || exit 1
+	pushd "build" >/dev/null || exit 1 && php -d pcov.directory=.. vendor/bin/phpunit $(TEST_RUN_ARGS) && popd >/dev/null || exit 1
 
 test-unit:
 	pushd "build" >/dev/null || exit 1 && \
-	php -d pcov.directory=.. vendor/bin/phpunit --testsuite unit && \
+	php -d pcov.directory=.. vendor/bin/phpunit --testsuite unit $(TEST_RUN_ARGS) && \
 	popd >/dev/null || exit 1
 
 test-kernel:
 	pushd "build" >/dev/null || exit 1 && \
-	php -d pcov.directory=.. vendor/bin/phpunit --testsuite kernel && \
+	php -d pcov.directory=.. vendor/bin/phpunit --testsuite kernel $(TEST_RUN_ARGS) && \
 	popd >/dev/null || exit 1
 
 test-functional:
 	pushd "build" >/dev/null || exit 1 && \
-	BROWSERTEST_OUTPUT_DIRECTORY=/tmp php -d pcov.directory=.. vendor/bin/phpunit --testsuite functional && \
+	php -d pcov.directory=.. vendor/bin/phpunit --testsuite functional $(TEST_RUN_ARGS) && \
 	popd >/dev/null || exit 1
 
 
